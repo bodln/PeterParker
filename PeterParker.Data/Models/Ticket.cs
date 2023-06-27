@@ -11,7 +11,7 @@ public class Ticket
     public int Id { get; set; }
     public int InspectorId { get; set; }
     public int UserId { get; set; }
-    public string VehicleRegistration { get; set; }
+    public string VehicleRegistration { get; set; } = string.Empty;
     public bool Status { get; set; }
     public int ZoneId { get; set; }
     public int ParkingSpaceId { get; set; }
