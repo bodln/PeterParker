@@ -5,9 +5,9 @@ VisualStudioVersion = 17.2.32505.173
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeterParker", "PeterParker\PeterParker.csproj", "{1B921859-F694-4B6C-B4B5-9F623F266227}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeterParker.Infrastructure", "PeterParker.Infrastructure\PeterParker.Infrastructure.csproj", "{8C335546-E190-45B5-BCDA-71D0F1D4784B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeterParker.Infrastructure", "PeterParker.Infrastructure\PeterParker.Infrastructure.csproj", "{8C335546-E190-45B5-BCDA-71D0F1D4784B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeterParker.Data", "PeterParker.Data\PeterParker.Data.csproj", "{EEF06403-07CE-4A59-B750-2D6A3EC9C3FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeterParker.Data", "PeterParker.Data\PeterParker.Data.csproj", "{EEF06403-07CE-4A59-B750-2D6A3EC9C3FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
