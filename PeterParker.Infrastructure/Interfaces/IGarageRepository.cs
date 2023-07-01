@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PeterParker.Infrastructure.Interfaces
 {
-    internal interface IGarageRepository : IRepository<Garage>
+    public interface IGarageRepository : IRepository<Garage>
     {
     }
 }

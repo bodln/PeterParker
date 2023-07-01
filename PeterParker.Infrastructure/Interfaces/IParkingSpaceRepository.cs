@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PeterParker.Infrastructure.Interfaces
 {
-    internal interface IParkingSpaceRepository : IRepository<ParkingSpace>
+    public interface IParkingSpaceRepository : IRepository<ParkingSpace>
     {
     }
 }

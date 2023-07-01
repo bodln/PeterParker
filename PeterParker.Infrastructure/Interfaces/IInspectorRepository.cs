@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PeterParker.Infrastructure.Interfaces
 {
-    internal interface IInspectorRepository : IRepository<Inspector>
+    public interface IInspectorRepository : IRepository<Inspector>
     {
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PeterParker.Infrastructure.Interfaces
 {
-    internal interface ITicketRepository : IRepository<Ticket>
+    public interface ITicketRepository : IRepository<Ticket>
     {
     }
 }

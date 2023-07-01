@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PeterParker.Infrastructure.Interfaces
 {
-    internal interface IUserRepository : IRepository<User>
+    public interface IUserRepository : IRepository<User>
     {
     }
 }

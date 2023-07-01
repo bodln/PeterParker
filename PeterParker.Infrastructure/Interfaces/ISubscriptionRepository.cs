@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PeterParker.Infrastructure.Interfaces
 {
-    internal interface ISubscriptionRepository : IRepository<Subscription>
+    public interface ISubscriptionRepository : IRepository<Subscription>
     {
     }
 }

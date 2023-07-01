@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PeterParker.Infrastructure.Interfaces
 {
-    internal interface IRepository<T> where T : class
+    public interface IRepository<T> where T : class
     {
         void Add(T entity);
         void Remove(T entity);

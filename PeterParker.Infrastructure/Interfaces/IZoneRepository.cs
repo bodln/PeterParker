@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PeterParker.Infrastructure.Interfaces
 {
-    internal interface IZoneRepository : IRepository<Zone>
+    public interface IZoneRepository : IRepository<Zone>
     {
     }
 }

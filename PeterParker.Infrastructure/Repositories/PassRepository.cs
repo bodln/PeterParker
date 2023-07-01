@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PeterParker.Infrastructure.Repositories
 {
-    internal class PassRepository : Repository<Pass>, IPassRepository
+    public class PassRepository : Repository<Pass>, IPassRepository
     {
         private readonly DataContext context;
 

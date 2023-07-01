@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PeterParker.Infrastructure.Interfaces
 {
-    internal interface IPassRepository : IRepository<Pass>
+    public interface IPassRepository : IRepository<Pass>
     {
     }
 }

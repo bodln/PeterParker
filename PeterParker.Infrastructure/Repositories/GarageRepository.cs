@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PeterParker.Infrastructure.Repositories
 {
-    internal class GarageRepository : Repository<Garage>, IGarageRepository
+    public class GarageRepository : Repository<Garage>, IGarageRepository
     {
         private readonly DataContext context;
 
