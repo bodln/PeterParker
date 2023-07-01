@@ -14,6 +14,8 @@ public class User
     public string Email { get; set; } = string.Empty;
     public byte[] PasswordHash { get; set; }
     public byte[] PasswordSalt { get; set; }
+    public string HomeAddress { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
     public List<string> Vehicles { get; set; } = new List<string>();
     public List<Ticket> Tickets { get; set; } = new List<Ticket>();
     public Pass? Pass { get; set; }
