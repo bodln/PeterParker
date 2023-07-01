@@ -2,6 +2,7 @@ global using PeterParker.Data;
 global using Microsoft.EntityFrameworkCore;
 using PeterParker.Infrastructure.Interfaces;
 using PeterParker.Infrastructure.Repositories;
+using PeterParker.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,8 @@ builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IZoneRepository, ZoneRepository>();
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 
