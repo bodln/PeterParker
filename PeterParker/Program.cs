@@ -1,5 +1,7 @@
 global using PeterParker.Data;
 global using Microsoft.EntityFrameworkCore;
+using PeterParker.Infrastructure.Interfaces;
+using PeterParker.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,17 @@ builder.Services.AddDbContext<DataContext>(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Dependency Injection for Repository
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IGarageRepository, GarageRepository>();
+builder.Services.AddScoped<IInspectorRepository, InspectorRepository>();
+builder.Services.AddScoped<IParkingSpaceRepository, ParkingSpaceRepository>();
+builder.Services.AddScoped<IPassRepository, PassRepository>();
+builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IZoneRepository, ZoneRepository>();
 
 var app = builder.Build();
 
