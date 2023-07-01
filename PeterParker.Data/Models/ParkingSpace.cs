@@ -9,7 +9,6 @@ namespace PeterParker.Data.Models;
 public class ParkingSpace
 {
     public int Id { get; set; }
-    public bool Status { get; set; } = false; // false = empty
     public string Street { get; set; } = string.Empty;
     public string VehicleRegistration { get; set; } = string.Empty;
     public int ZoneId { get; set; }

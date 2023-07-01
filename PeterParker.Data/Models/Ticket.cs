@@ -12,7 +12,7 @@ public class Ticket
     public int InspectorId { get; set; }
     public int UserId { get; set; }
     public string VehicleRegistration { get; set; } = string.Empty;
-    public bool Status { get; set; }
+    public bool Paid { get; set; }
     public int ZoneId { get; set; }
     public int ParkingSpaceId { get; set; }
     public int Fine { get; set; }
