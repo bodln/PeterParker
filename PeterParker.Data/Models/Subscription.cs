@@ -10,6 +10,6 @@ public class Subscription
 {
     public int Id { get; set; }
     public DateTime Expiration { get; set; }
-    public List<int> Zones { get; set; } = new List<int>();
+    public List<Zone> Zones { get; set; } = new List<Zone>();
     public string VehicleRegistration { get; set; } = string.Empty;
 }

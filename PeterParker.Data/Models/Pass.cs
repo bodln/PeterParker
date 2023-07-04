@@ -10,6 +10,6 @@ public class Pass
 {
     public int Id { get; set; }
     public DateTime TimeOfSale { get; set; }
-    public List<int> ZoneIds { get; set; } = new List<int>(); // list of ints of Zones themselves???
+    public List<Zone> ZoneIds { get; set; } = new List<Zone>(); 
     public DateTime Expiration { get; set; }
 }
