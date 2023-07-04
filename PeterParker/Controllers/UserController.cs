@@ -1,12 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using PeterParker.Infrastructure;
+using PeterParker.Infrastructure.Interfaces;
 
 namespace PeterParker.Controllers
 {
-    public class UserController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UserController : ControllerBase
     {
-        public IActionResult Index()
+        private readonly IUnitOfWork unitOfWork;
+
+        public UserController(IUnitOfWork unitOfWork)
         {
-            return View();
+            this.unitOfWork = unitOfWork;
         }
     }
 }
