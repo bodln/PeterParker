@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using PeterParker.Data.Models;
 using PeterParker.DTOs;
 using PeterParker.Infrastructure;
 using PeterParker.Infrastructure.Interfaces;
@@ -39,7 +40,7 @@ namespace PeterParker.Controllers
         }
 
         [HttpPost("MakeAdmin")]
-        [Authorize("AdminOnly")]
+        //[Authorize("AdminOnly")]
         public async Task<IActionResult> AddAdminRole(string request)
         {
             IdentityResult result = unitOfWork.UserRepository.AddAdminRole(request).Result;
@@ -52,6 +53,61 @@ namespace PeterParker.Controllers
             {
                 return BadRequest(result.Errors);
             }
+        }
+
+        [HttpPost("RevokeAdmin")]
+        [Authorize("AdminOnly")]
+        public async Task<IActionResult> RemoveAdminRole(string request)
+        {
+            IdentityResult result = unitOfWork.UserRepository.RemoveAdminRole(request).Result;
+
+            if (result.Succeeded)
+            {
+                return Ok("User Successfully Revoked as Admin");
+            }
+            else
+            {
+                return BadRequest(result.Errors);
+            }
+        }
+
+        [HttpPost("MakeInstructor")]
+        [Authorize("AdminOnly")]
+        public async Task<IActionResult> AddInstructorRole(string request)
+        {
+            IdentityResult result = unitOfWork.UserRepository.AddInstructorRole(request).Result;
+
+            if (result.Succeeded)
+            {
+                return Ok("User Successfully Made Instructor");
+            }
+            else
+            {
+                return BadRequest(result.Errors);
+            }
+        }
+
+        [HttpPost("RevokeInstructor")]
+        [Authorize("AdminOnly")]
+        public async Task<IActionResult> RemoveInstructorRole(string request)
+        {
+            IdentityResult result = unitOfWork.UserRepository.RemoveInstructorRole(request).Result;
+
+            if (result.Succeeded)
+            {
+                return Ok("User Successfully Revoked as Instructor");
+            }
+            else
+            {
+                return BadRequest(result.Errors);
+            }
+        }
+
+        [HttpGet]
+        public async Task<List<User>> GetAll()
+        {
+            return await unitOfWork.UserRepository.GetAll();
+
         }
     }
 }
