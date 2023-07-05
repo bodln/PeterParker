@@ -12,6 +12,7 @@ namespace PeterParker.Infrastructure.Interfaces
 {
     public interface IUserRepository
     {
+        Task<IdentityResult> AddAdminRole(string request);
         Task<string> LogInUser(UserDTO request);
         Task<IdentityResult> RegisterUser(UserDTO request);
     }

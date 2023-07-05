@@ -60,7 +60,7 @@ namespace PeterParker.Infrastructure.Repositories
             }
             else
             {
-                return "Incorrect Login";
+                return "Incorrect Login Information.";
             }
         }
 
@@ -68,15 +68,19 @@ namespace PeterParker.Infrastructure.Repositories
         {
             var claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.Email, request.Email)
+                new Claim(ClaimTypes.Email, request.Email),
+                new Claim(ClaimTypes.Role, "User"),
             };
 
             var user = await userManager.FindByEmailAsync(request.Email);
-            var claimList = await context.UserClaims.ToListAsync();
+            var claimList = await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync();
 
             foreach (var claim in claimList)
             {
-                claims.Add(new Claim(claim.ClaimType, claim.ClaimValue));
+                if (claim.ClaimValue != "User")
+                {
+                    claims.Add(new Claim(claim.ClaimType, claim.ClaimValue));
+                }
             }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSection("Jwt:Key").Value));
@@ -84,10 +88,20 @@ namespace PeterParker.Infrastructure.Repositories
 
             var expiration = DateTime.UtcNow.AddDays(1);
 
-            var token = new JwtSecurityToken(issuer: null, audience: null, claims: claims,
-                    expires: expiration, signingCredentials: creds);
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                issuer: config.GetSection("Jwt:Issuer").Value,
+                audience: config.GetSection("Jwt:Audience").Value,
+                signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<IdentityResult> AddAdminRole(string request)
+        {
+            var user = await userManager.FindByEmailAsync(request);
+            return await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
         }
     }
 }
