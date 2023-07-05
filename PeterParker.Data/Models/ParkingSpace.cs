@@ -10,7 +10,7 @@ public class ParkingSpace
 {
     public int Id { get; set; }
     public string Street { get; set; } = string.Empty;
-    public string VehicleRegistration { get; set; } = string.Empty;
+    public int VehicleId { get; set; }
     public int ZoneId { get; set; }
     public int Number { get; set; } // in zone
 }

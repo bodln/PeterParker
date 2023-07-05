@@ -11,5 +11,5 @@ public class Subscription
     public int Id { get; set; }
     public DateTime Expiration { get; set; }
     public List<Zone> Zones { get; set; } = new List<Zone>();
-    public string VehicleRegistration { get; set; } = string.Empty;
+    public int VehicleId { get; set; }
 }
