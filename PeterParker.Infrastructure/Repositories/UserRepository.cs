@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace PeterParker.Infrastructure.Repositories
 {
-    public class UserRepository : Repository<User>, IUserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly DataContext context;
         private readonly IConfiguration config;
@@ -29,7 +29,7 @@ namespace PeterParker.Infrastructure.Repositories
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             DataContext context, 
-            IConfiguration config) : base(context)
+            IConfiguration config) //: base(context)
         {
             this.context = context;
             this.config = config;
@@ -101,7 +101,62 @@ namespace PeterParker.Infrastructure.Repositories
         public async Task<IdentityResult> AddAdminRole(string request)
         {
             var user = await userManager.FindByEmailAsync(request);
-            return await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
+            Claim adminClaim = new Claim(ClaimTypes.Role, "Admin");
+
+            if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
+                .Where(x => x.ClaimValue == adminClaim.Value).Count() > 0)
+            {
+                return IdentityResult.Success;
+            }
+
+            return await userManager.AddClaimAsync(user, adminClaim);
+        }
+
+        public async Task<IdentityResult> RemoveAdminRole(string request)
+        {
+            var user = await userManager.FindByEmailAsync(request);
+            Claim adminClaim = new Claim(ClaimTypes.Role, "Admin");
+
+            if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
+                .Where(x => x.ClaimValue == adminClaim.Value).Count() == 0)
+            {
+                return IdentityResult.Success;
+            }
+
+            return await userManager.RemoveClaimAsync(user, adminClaim);
+        }
+
+        public async Task<IdentityResult> AddInstructorRole(string request)
+        {
+            var user = await userManager.FindByEmailAsync(request);
+            Claim instsructorClaim = new Claim(ClaimTypes.Role, "Instructor");
+
+            if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
+                .Where(x => x.ClaimValue == instsructorClaim.Value).Count() > 0)
+            {
+                return IdentityResult.Success;
+            }
+
+            return await userManager.AddClaimAsync(user, instsructorClaim);
+        }
+
+        public async Task<IdentityResult> RemoveInstructorRole(string request)
+        {
+            var user = await userManager.FindByEmailAsync(request);
+            Claim instsructorClaim = new Claim(ClaimTypes.Role, "Instructor");
+
+            if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
+                .Where(x => x.ClaimValue == instsructorClaim.Value).Count() == 0)
+            {
+                return IdentityResult.Success;
+            }
+
+            return await userManager.RemoveClaimAsync(user, instsructorClaim);
+        }
+
+        public async Task<List<User>> GetAll()
+        {
+            return await context.Users.ToListAsync();
         }
     }
 }
