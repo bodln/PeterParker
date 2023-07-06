@@ -17,7 +17,7 @@ public class User : IdentityUser
     //public byte[] PasswordSalt { get; set; }
     public string HomeAddress { get; set; } = string.Empty;
     //public string PhoneNumber { get; set; } = string.Empty;
-    public List<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
+    //public List<Vehicle> Vehicles { get; set; } = new List<Vehicle>(); // Reference Vehicle class
     public List<Ticket> Tickets { get; set; } = new List<Ticket>();
     public Pass? Pass { get; set; }
     public Subscription? Subscription { get; set; }
