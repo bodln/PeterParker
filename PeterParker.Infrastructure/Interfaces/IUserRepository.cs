@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using PeterParker.Data.DTOs;
 using PeterParker.Data.Models;
 using PeterParker.DTOs;
 using PeterParker.Infrastructure.Repositories;
@@ -18,6 +19,6 @@ namespace PeterParker.Infrastructure.Interfaces
         Task<IdentityResult> RegisterUser(UserDTO request);
         Task<IdentityResult> RemoveAdminRole(string request);
         Task<IdentityResult> RemoveInstructorRole(string request);
-        Task<List<User>> GetAll();
+        Task<List<UserDTO>> GetAll();
     }
 }

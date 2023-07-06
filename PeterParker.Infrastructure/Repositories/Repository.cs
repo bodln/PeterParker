@@ -28,7 +28,7 @@ namespace PeterParker.Infrastructure.Repositories
             context.SaveChanges();
         }
 
-        public IEnumerable<T> GetAll()
+        public List<T> GetAll()
         {
             return context.Set<T>().ToList();
         }

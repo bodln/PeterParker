@@ -11,6 +11,6 @@ namespace PeterParker.Infrastructure.Interfaces
         void Add(T entity);
         void Remove(T entity);
         T GetById(int id);
-        IEnumerable<T> GetAll();
+        List<T> GetAll();
     }
 }

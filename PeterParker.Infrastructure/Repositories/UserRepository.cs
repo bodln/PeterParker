@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using PeterParker.Data;
+using PeterParker.Data.DTOs;
 using PeterParker.Data.Models;
 using PeterParker.DTOs;
 using PeterParker.Infrastructure.Interfaces;
@@ -143,6 +144,7 @@ namespace PeterParker.Infrastructure.Repositories
         public async Task<IdentityResult> RemoveInstructorRole(string request)
         {
             var user = await userManager.FindByEmailAsync(request);
+
             Claim instsructorClaim = new Claim(ClaimTypes.Role, "Instructor");
 
             if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
@@ -154,9 +156,25 @@ namespace PeterParker.Infrastructure.Repositories
             return await userManager.RemoveClaimAsync(user, instsructorClaim);
         }
 
-        public async Task<List<User>> GetAll()
+        public async Task<List<UserDTO>> GetAll()
         {
-            return await context.Users.ToListAsync();
+            var users = await context.Users.ToListAsync();
+
+            List<UserDTO> usersDTO = new List<UserDTO>();
+
+            foreach (var user in users)
+            {
+                UserDTO userDTO = mapper.Map<UserDTO>(user);
+                List<VehicleDTO> vehiclesDTO = new List<VehicleDTO>();
+                foreach (Vehicle vehicle in await context.Vehicles.Where(v => v.User == user).ToListAsync())
+                {
+                    vehiclesDTO.Add(mapper.Map<VehicleDTO>(vehicle));
+                }
+                userDTO.Vehicles = vehiclesDTO;
+                usersDTO.Add(userDTO);
+            }
+
+            return usersDTO;
         }
     }
 }
