@@ -21,16 +21,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddLogging();
+
 // Dependency Injection for Repository
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IGarageRepository, GarageRepository>();
-builder.Services.AddScoped<IInspectorRepository, InspectorRepository>();
 builder.Services.AddScoped<IParkingSpaceRepository, ParkingSpaceRepository>();
 builder.Services.AddScoped<IPassRepository, PassRepository>();
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IZoneRepository, ZoneRepository>();
+builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -90,6 +92,7 @@ builder.Services.AddAuthorization(options =>
 
 //AutoMapper Config
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
 
 var app = builder.Build();
 
