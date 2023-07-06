@@ -1,4 +1,5 @@
-﻿using PeterParker.Data.Models;
+﻿using PeterParker.Data.DTOs;
+using PeterParker.Data.Models;
 
 namespace PeterParker.DTOs;
 
@@ -9,5 +10,5 @@ public class UserDTO
     public string HomeAddress { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
-    public List<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
+    public List<VehicleDTO> Vehicles { get; set; } = new List<VehicleDTO>();
 }
