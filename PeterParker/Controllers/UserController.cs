@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using PeterParker.Data.DTOs;
 using PeterParker.Data.Models;
 using PeterParker.DTOs;
 using PeterParker.Infrastructure;
@@ -27,7 +28,7 @@ namespace PeterParker.Controllers
 
             if (result.Succeeded)
             {
-                return Ok(request.Email + "Successfully Registered.");
+                return Ok(request.Email + " Successfully Registered.");
             }
 
             return BadRequest(result.Errors);
@@ -103,8 +104,8 @@ namespace PeterParker.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<List<User>> GetAll()
+        [HttpGet("GetAllUsersWithVehicles")]
+        public async Task<List<UserDTO>> GetAll()
         {
             return await unitOfWork.UserRepository.GetAll();
 
