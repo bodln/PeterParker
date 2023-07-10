@@ -1,4 +1,5 @@
-﻿using PeterParker.Data.Models;
+﻿using PeterParker.Data.DTOs;
+using PeterParker.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,9 @@ using System.Threading.Tasks;
 
 namespace PeterParker.Infrastructure.Interfaces
 {
-    public interface ITicketRepository : IRepository<Ticket>
+    public interface ITicketRepository //: IRepository<Ticket>
     {
+        bool Add(TicketDTO request);
+        Task<List<Ticket>> GetAll();
     }
 }
