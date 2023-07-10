@@ -192,7 +192,7 @@ namespace PeterParker.Data.Migrations
 
                     b.HasIndex("ZoneId");
 
-                    b.ToTable("Garage");
+                    b.ToTable("Garage", (string)null);
                 });
 
             modelBuilder.Entity("PeterParker.Data.Models.ParkingSpace", b =>
@@ -227,7 +227,7 @@ namespace PeterParker.Data.Migrations
 
                     b.HasIndex("ZoneId");
 
-                    b.ToTable("ParkingSpaces");
+                    b.ToTable("ParkingSpaces", (string)null);
                 });
 
             modelBuilder.Entity("PeterParker.Data.Models.Pass", b =>
@@ -246,7 +246,7 @@ namespace PeterParker.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Passes");
+                    b.ToTable("Passes", (string)null);
                 });
 
             modelBuilder.Entity("PeterParker.Data.Models.Subscription", b =>
@@ -267,7 +267,7 @@ namespace PeterParker.Data.Migrations
 
                     b.HasIndex("VehicleId");
 
-                    b.ToTable("Subscriptions");
+                    b.ToTable("Subscriptions", (string)null);
                 });
 
             modelBuilder.Entity("PeterParker.Data.Models.Ticket", b =>
@@ -301,7 +301,7 @@ namespace PeterParker.Data.Migrations
 
                     b.HasIndex("ZoneId");
 
-                    b.ToTable("Tickets");
+                    b.ToTable("Tickets", (string)null);
                 });
 
             modelBuilder.Entity("PeterParker.Data.Models.User", b =>
@@ -411,7 +411,7 @@ namespace PeterParker.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Vehicles");
+                    b.ToTable("Vehicles", (string)null);
                 });
 
             modelBuilder.Entity("PeterParker.Data.Models.Zone", b =>
@@ -444,7 +444,7 @@ namespace PeterParker.Data.Migrations
 
                     b.HasIndex("SubscriptionId");
 
-                    b.ToTable("Zones");
+                    b.ToTable("Zones", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
