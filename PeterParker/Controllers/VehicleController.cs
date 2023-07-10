@@ -37,13 +37,36 @@ namespace PeterParker.Controllers
             }
 
             return BadRequest("Something went wrong.");
-            
         }
 
         [HttpGet("GetAllVehiclesByEmail")]
         public async Task<List<VehicleDTO>> GetAllVehiclesByEmail(string request)
         {
             return await unitOfWork.VehicleRepository.GetAllVehiclesForUserByEmail(request);
+        }
+
+        [HttpPost("ParkVehicle")]
+        public IActionResult ParkVehicle(string registration, string zoneGeoJSON, int parkingSpaceNumber)
+        {
+            if (unitOfWork.VehicleRepository.ParkVehicle(registration, zoneGeoJSON, parkingSpaceNumber))
+            {
+                unitOfWork.SaveChanges();
+                return Ok("Successfully parked!");
+            }
+
+            return BadRequest("Something went wrong.");
+        }
+
+        [HttpPost("UnparkVehicle")]
+        public IActionResult UnparkVehicle(string zoneGeoJSON, int parkingSpaceNumber)
+        {
+            if (unitOfWork.VehicleRepository.UnparkVehicle(zoneGeoJSON, parkingSpaceNumber))
+            {
+                unitOfWork.SaveChanges();
+                return Ok("Successfully unparked!");
+            }
+
+            return BadRequest("Something went wrong.");
         }
     }
 }

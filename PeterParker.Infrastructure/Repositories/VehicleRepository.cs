@@ -84,6 +84,51 @@ namespace PeterParker.Infrastructure.Repositories
             }
         }
 
+        public bool ParkVehicle(string registration, string zoneGeoJSON, int parkingSpaceNumber)
+        {
+            try
+            {
+                Vehicle vehicle = context.Vehicles.Where(v => v.Registration == registration).FirstOrDefault();
+                Zone zone = context.Zones.Where(z => z.GeoJSON == zoneGeoJSON).Include(z => z.ParkingSpaces).FirstOrDefault();
+
+                ParkingSpace parkingSpace = zone.ParkingSpaces.FirstOrDefault(ps => ps.Number == parkingSpaceNumber);
+                parkingSpace.Vehicle = vehicle;
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+
+                return false;
+            }
+        }
+        // I'm thinking that on the frontend the user knows where his vehicle is parked
+        // so when unparking just send that info with no need of sending the registration
+        public bool UnparkVehicle(string zoneGeoJSON, int parkingSpaceNumber)
+        {
+            try
+            {
+                //Vehicle vehicle = context.Vehicles.Where(v => v.Registration == registration).FirstOrDefault();
+                Zone zone = context.Zones
+                    .Where(z => z.GeoJSON == zoneGeoJSON)
+                    .Include(z => z.ParkingSpaces)
+                    .ThenInclude(ps => ps.Vehicle)
+                    .FirstOrDefault();
+
+                ParkingSpace parkingSpace = zone.ParkingSpaces.FirstOrDefault(ps => ps.Number == parkingSpaceNumber);
+                parkingSpace.Vehicle = null;
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+
+                return false;
+            }
+        }
+
         public List<VehicleDTO> GetAll()
         {
             throw new NotImplementedException();
