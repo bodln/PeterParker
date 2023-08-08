@@ -67,6 +67,7 @@ public class ExceptionHandlingMiddleware
                 errorResponse.Message = "Internal server error!";
                 break;
         }
+
         _logger.LogError(exception.Message);
         var result = JsonSerializer.Serialize(errorResponse);
         await context.Response.WriteAsync(result);
