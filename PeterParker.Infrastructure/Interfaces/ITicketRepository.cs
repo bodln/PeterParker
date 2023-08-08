@@ -10,7 +10,7 @@ namespace PeterParker.Infrastructure.Interfaces
 {
     public interface ITicketRepository //: IRepository<Ticket>
     {
-        bool Add(TicketDTO request);
-        Task<List<Ticket>> GetAll();
+        void Add(TicketDTO request);
+        List<Ticket> GetAll();
     }
 }

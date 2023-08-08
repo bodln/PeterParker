@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using PeterParker.Data;
 using PeterParker.Data.DTOs;
 using PeterParker.Data.Models;
+using PeterParker.Infrastructure.Exceptions;
 using PeterParker.Infrastructure.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -28,35 +29,38 @@ namespace PeterParker.Infrastructure.Repositories
             this.logger = logger;
         }
 
-        public bool Add(TicketDTO request)
+        public void Add(TicketDTO request)
         {
+            if (request.ParkingSpaceId == null || request.ZoneId == null)
+            {
+                throw new TicketMissingParametersException();
+            }
+
             try
             {
                 Ticket ticket = mapper.Map<Ticket>(request);
+                ticket.Zone = context.Zones.Where(z => z.Id == request.ZoneId).FirstOrDefault();
                 context.Tickets.Add(ticket);
-
-                return true;
+                context.SaveChanges();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                logger.LogError(e.Message);
-                return false;
+                throw new InternalServerErrorException(ex.Message);
             }
 
         }
 
-        public async Task<List<Ticket>> GetAll()
+        public List<Ticket> GetAll()
         {
             try
             {
-                return await context.Tickets.ToListAsync();
+                return context.Tickets
+                    .Include(t => t.Zone)
+                    .ToList();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                logger.LogError(e.Message);
-                return null;
-
-                throw;
+                throw new InternalServerErrorException(ex.Message);
             }
         }
     }

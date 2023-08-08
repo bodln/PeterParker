@@ -12,6 +12,7 @@ using PeterParker.Data.Models;
 using System.Security.Claims;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
+using ExceptionHandling.CustomMiddlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -108,6 +109,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
 

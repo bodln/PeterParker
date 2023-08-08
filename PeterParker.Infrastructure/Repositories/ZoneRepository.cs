@@ -4,12 +4,8 @@ using Microsoft.Extensions.Logging;
 using PeterParker.Data;
 using PeterParker.Data.DTOs;
 using PeterParker.Data.Models;
+using PeterParker.Infrastructure.Exceptions;
 using PeterParker.Infrastructure.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PeterParker.Infrastructure.Repositories
 {
@@ -28,8 +24,11 @@ namespace PeterParker.Infrastructure.Repositories
             this.logger = logger;
         }
 
-        public bool Add(ZoneDTO request)
+        public void Add(ZoneDTO request)
         {
+            if (request.GeoJSON == "" || request.TotalSpaces == null)
+                throw new ZoneMissingParametersException();
+
             try
             {
                 Zone zone = mapper.Map<Zone>(request);
@@ -57,13 +56,11 @@ namespace PeterParker.Infrastructure.Repositories
                 zone.ParkingSpaces = parkingSpaces;
                 context.SaveChanges();
 
-                return true;
+                return;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                logger.LogError(e.Message);
-
-                return false;
+                throw new InternalServerErrorException(ex.Message);
             }
         }
 
@@ -71,13 +68,13 @@ namespace PeterParker.Infrastructure.Repositories
         {
             try
             {
-                return context.Zones.Include(z => z.ParkingSpaces).ToList();
+                return context.Zones.Include(z => z.ParkingSpaces)
+                        .ThenInclude(ps => ps.Vehicle)
+                        .ToList();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                logger.LogError(e.Message);
-
-                return null;
+                throw new InternalServerErrorException();
             }
         }
     }

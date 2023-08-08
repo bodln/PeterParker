@@ -36,4 +36,5 @@ public class DataContext : IdentityDbContext<User>
     public DbSet<Subscription> Subscriptions { get; set; }
     public DbSet<Ticket> Tickets { get; set; }
     public DbSet<Vehicle> Vehicles { get; set; }
+    //public DbSet<UserRefreshToken> RefreshTokens { get; set; }
 }

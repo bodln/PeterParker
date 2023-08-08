@@ -38,11 +38,11 @@ public class UserProfile : Profile
             .ForMember(dest =>
                 dest.Zone,
                 opt => opt.MapFrom(src => context.Zones.Where(z => z.Id == src.ZoneId))
-                )
-            .ForMember(dest =>
-                dest.ParkingSpace,
-                opt => opt.MapFrom(src => context.ParkingSpaces.Where(ps => ps.Id == src.ParkingSpaceId))
                 );
+            //.ForMember(dest =>
+            //    dest.ParkingSpace,
+            //    opt => opt.MapFrom(src => context.ParkingSpaces.Where(ps => ps.Id == src.ParkingSpaceId))
+            //    );
 
         CreateMap<Ticket, TicketDTO>();
 

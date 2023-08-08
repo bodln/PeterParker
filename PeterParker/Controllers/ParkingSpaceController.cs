@@ -20,12 +20,8 @@ namespace PeterParker.Controllers
         public IActionResult GetAllByGeoJSON(string request)
         {
             var result = unitOfWork.ParkingSpaceRepository.GetAllByGeoJSON(request);
-            if (result != null)
-            {
-                return Ok(result);
-            }
 
-            return BadRequest("Something went wrong");
+            return Ok(result);
         }
     }
 }

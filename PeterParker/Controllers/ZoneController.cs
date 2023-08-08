@@ -20,25 +20,15 @@ namespace PeterParker.Controllers
         [HttpPost("AddZone")]
         public async Task<IActionResult> Add(ZoneDTO request)
         {
-            if (unitOfWork.ZoneRepository.Add(request))
-            {
-                unitOfWork.SaveChanges();
-                return Ok("Zone added");
-            }
-
-            return BadRequest("Ooops!");
+            unitOfWork.ZoneRepository.Add(request);
+            return Ok("Zone added.");
         }
 
         [HttpGet("GetAllZones")]
         public async Task<IActionResult> GetAll()
         {
             List<Zone> zones = unitOfWork.ZoneRepository.GetAll(); 
-            if (zones != null)
-            {
-                return Ok(zones);
-            }
-
-            return BadRequest("Ooops!");
+            return Ok(zones);
         }
     }
 }
