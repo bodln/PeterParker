@@ -1,17 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PeterParker.Data;
 using PeterParker.Data.DTOs;
 using PeterParker.Data.Models;
+using PeterParker.Infrastructure.Exceptions;
 using PeterParker.Infrastructure.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PeterParker.Infrastructure.Repositories
 {
@@ -32,31 +27,34 @@ namespace PeterParker.Infrastructure.Repositories
             this.context = context;
             this.logger = logger;
         }
-        public async Task<bool> AddVehicle(VehicleDTO request)
+        public async Task AddVehicle(VehicleDTO request)
         {
-            try
+            if (await context.Vehicles.AnyAsync(v => v.Registration == request.Registration))
             {
-                if (await context.Vehicles.AnyAsync(v => v.Registration == request.Registration))
-                {
-                    logger.LogInformation("There already exists a Vehicle by that registration.");
-                    return false;
-                }
+                throw new DuplicateObjectException($"A vehicle with the registration: {request.Registration}, already exists.");
+            }
 
-                Vehicle vehicle = mapper.Map<Vehicle>(request);
-                vehicle.User = await userManager.FindByEmailAsync(request.UserEmail);
-                context.Vehicles.Add(vehicle);
-                return true;
-            }
-            catch (Exception e)
+            Vehicle vehicle = mapper.Map<Vehicle>(request);
+            vehicle.User = await userManager.FindByEmailAsync(request.UserEmail);
+
+            if (vehicle.User == null)
             {
-                logger.LogError(e.ToString());
-                return false;
+                throw new NotFoundException("The owner for this vehicle is not found.");
             }
+
+            context.Vehicles.Add(vehicle);
+            await context.SaveChangesAsync();
         }
 
         public async Task<List<VehicleDTO>> GetAllVehiclesForUserByEmail(string request)
         {
             var user = await userManager.FindByEmailAsync(request);
+
+            if (user == null)
+            {
+                throw new NotFoundException("The owner of the vehicles could not be found.");
+            }
+
             List<Vehicle> vehicles = await context.Vehicles.Where(v => v.User == user).ToListAsync();
 
             List<VehicleDTO> vehiclesDTO = new List<VehicleDTO>();
@@ -69,64 +67,86 @@ namespace PeterParker.Infrastructure.Repositories
             return vehiclesDTO;
         }
 
-        public async Task<bool> DeleteVehicle(string request)
+        public async Task DeleteVehicle(string request)
         {
-            try
+            Vehicle vehicle = await context.Vehicles.FirstOrDefaultAsync(v => v.Registration == request);
+
+            if (vehicle == null)
             {
-                Vehicle vehicle = await context.Vehicles.FirstOrDefaultAsync(v => v.Registration == request);
-                context.Vehicles.Remove(vehicle);
-                return true;
+                throw new NotFoundException($"The vehicles with the registration: {request}, could not be found.");
             }
-            catch (Exception e)
+
+            ParkingSpace parkingSpace = await context.ParkingSpaces
+                .FirstOrDefaultAsync(ps => ps.Vehicle == vehicle);
+
+            if (parkingSpace != null)
             {
-                logger.LogInformation(e.Message);
-                return false;
+                parkingSpace.Vehicle = null;
+                await context.SaveChangesAsync();
             }
+
+            context.Vehicles.Remove(vehicle);
+            await context.SaveChangesAsync();
         }
 
-        public bool ParkVehicle(string registration, string zoneGeoJSON, int parkingSpaceNumber)
+        public async Task ParkVehicle(string registration, string zoneGeoJSON, int parkingSpaceNumber)
         {
-            try
-            {
-                Vehicle vehicle = context.Vehicles.Where(v => v.Registration == registration).FirstOrDefault();
-                Zone zone = context.Zones.Where(z => z.GeoJSON == zoneGeoJSON).Include(z => z.ParkingSpaces).FirstOrDefault();
+            Vehicle vehicle = await context.Vehicles.Where(v => v.Registration == registration).FirstOrDefaultAsync();
 
-                ParkingSpace parkingSpace = zone.ParkingSpaces.FirstOrDefault(ps => ps.Number == parkingSpaceNumber);
+            if (vehicle == null)
+            {
+                throw new NotFoundException($"The vehicles with the registration: {registration}, could not be found.");
+            }
+
+            Zone zone = await context.Zones
+                .Where(z => z.GeoJSON == zoneGeoJSON)
+                .Include(z => z.ParkingSpaces)
+                    .ThenInclude(ps => ps.Vehicle)
+                .FirstOrDefaultAsync();
+
+            if (zone == null)
+            {
+                throw new NotFoundException("Zone could not be found.");
+            }
+
+            ParkingSpace parkingSpace = zone.ParkingSpaces.FirstOrDefault(ps => ps.Number == parkingSpaceNumber);
+
+            if (parkingSpace == null)
+            {
+                throw new NotFoundException($"The parking space with number: {parkingSpaceNumber}, could not be found.");
+            }
+
+            if (parkingSpace.Vehicle == null)
+            {
                 parkingSpace.Vehicle = vehicle;
-
-                return true;
             }
-            catch (Exception e)
+            else
             {
-                logger.LogError(e.Message);
-
-                return false;
+                throw new ParkingSpaceTakenException();
             }
+            
+            await context.SaveChangesAsync();
         }
         // I'm thinking that on the frontend the user knows where his vehicle is parked
         // so when unparking just send that info with no need of sending the registration
-        public bool UnparkVehicle(string zoneGeoJSON, int parkingSpaceNumber)
+        public async Task UnparkVehicle(string zoneGeoJSON, int parkingSpaceNumber)
         {
-            try
+            //Vehicle vehicle = context.Vehicles.Where(v => v.Registration == registration).FirstOrDefault();
+            Zone zone = await context.Zones
+                .Where(z => z.GeoJSON == zoneGeoJSON)
+                .Include(z => z.ParkingSpaces)
+                .ThenInclude(ps => ps.Vehicle)
+                .FirstOrDefaultAsync();
+
+            ParkingSpace parkingSpace = zone.ParkingSpaces.FirstOrDefault(ps => ps.Number == parkingSpaceNumber);
+
+            if (parkingSpace == null)
             {
-                //Vehicle vehicle = context.Vehicles.Where(v => v.Registration == registration).FirstOrDefault();
-                Zone zone = context.Zones
-                    .Where(z => z.GeoJSON == zoneGeoJSON)
-                    .Include(z => z.ParkingSpaces)
-                    .ThenInclude(ps => ps.Vehicle)
-                    .FirstOrDefault();
-
-                ParkingSpace parkingSpace = zone.ParkingSpaces.FirstOrDefault(ps => ps.Number == parkingSpaceNumber);
-                parkingSpace.Vehicle = null;
-
-                return true;
+                throw new NotFoundException($"The parking space with number: {parkingSpaceNumber}, could not be found.");
             }
-            catch (Exception e)
-            {
-                logger.LogError(e.Message);
 
-                return false;
-            }
+            parkingSpace.Vehicle = null;
+            await context.SaveChangesAsync();
         }
 
         public List<VehicleDTO> GetAll()
