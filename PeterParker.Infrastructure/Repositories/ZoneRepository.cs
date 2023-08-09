@@ -24,58 +24,44 @@ namespace PeterParker.Infrastructure.Repositories
             this.logger = logger;
         }
 
-        public void Add(ZoneDTO request)
+        public async Task Add(ZoneDTO request)
         {
             if (request.GeoJSON == "" || request.TotalSpaces == null)
-                throw new ZoneMissingParametersException();
+                throw new MissingParametersException("Missing parameters for zone creation.");
 
-            try
+            Zone zone = mapper.Map<Zone>(request);
+            context.Zones.Add(zone);
+            await context.SaveChangesAsync();
+
+            List<ParkingSpace> parkingSpaces = new List<ParkingSpace>();
+
+            for (int i = 0; i < zone.TotalSpaces; i++)
             {
-                Zone zone = mapper.Map<Zone>(request);
-                context.Zones.Add(zone);
-                context.SaveChanges();
-
-                List<ParkingSpace> parkingSpaces = new List<ParkingSpace>();
-
-                for (int i = 0; i < zone.TotalSpaces; i++)
+                // a method for different parkingspaces to have
+                // different streets in the same zone must be implemented lazy rn
+                parkingSpaces.Add(new ParkingSpace
                 {
-                    // a method for different parkingspaces to have
-                    // different streets in the same zone must be implemented lazy rn
-                    parkingSpaces.Add(new ParkingSpace
-                    {
-                        Street = "Implement this",
-                        Vehicle = null,
-                        Garage = null,
-                        Number = i + 1
-                    });
-                }
-
-                context.ParkingSpaces.AddRange(parkingSpaces);
-                context.SaveChanges();
-
-                zone.ParkingSpaces = parkingSpaces;
-                context.SaveChanges();
-
-                return;
+                    Street = "Implement this",
+                    Vehicle = null,
+                    Garage = null,
+                    Number = i + 1
+                });
             }
-            catch (Exception ex)
-            {
-                throw new InternalServerErrorException(ex.Message);
-            }
+
+            context.ParkingSpaces.AddRange(parkingSpaces);
+            await context.SaveChangesAsync();
+
+            zone.ParkingSpaces = parkingSpaces;
+            await context.SaveChangesAsync();
+
+            return;
         }
 
-        public List<Zone> GetAll()
+        public async Task<List<Zone>> GetAll()
         {
-            try
-            {
-                return context.Zones.Include(z => z.ParkingSpaces)
+            return await context.Zones.Include(z => z.ParkingSpaces)
                         .ThenInclude(ps => ps.Vehicle)
-                        .ToList();
-            }
-            catch (Exception ex)
-            {
-                throw new InternalServerErrorException();
-            }
+                        .ToListAsync(); 
         }
     }
 }

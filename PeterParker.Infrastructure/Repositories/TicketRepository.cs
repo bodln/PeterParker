@@ -6,11 +6,6 @@ using PeterParker.Data.DTOs;
 using PeterParker.Data.Models;
 using PeterParker.Infrastructure.Exceptions;
 using PeterParker.Infrastructure.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PeterParker.Infrastructure.Repositories
 {
@@ -33,35 +28,19 @@ namespace PeterParker.Infrastructure.Repositories
         {
             if (request.ParkingSpaceId == null || request.ZoneId == null)
             {
-                throw new TicketMissingParametersException();
+                throw new MissingParametersException("Missing parameters for ticket creation.");
             }
-
-            try
-            {
-                Ticket ticket = mapper.Map<Ticket>(request);
-                ticket.Zone = context.Zones.Where(z => z.Id == request.ZoneId).FirstOrDefault();
-                context.Tickets.Add(ticket);
-                context.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                throw new InternalServerErrorException(ex.Message);
-            }
-
+            Ticket ticket = mapper.Map<Ticket>(request);
+            ticket.Zone = context.Zones.Where(z => z.Id == request.ZoneId).FirstOrDefault();
+            context.Tickets.Add(ticket);
+            context.SaveChanges();
         }
 
         public List<Ticket> GetAll()
         {
-            try
-            {
-                return context.Tickets
-                    .Include(t => t.Zone)
-                    .ToList();
-            }
-            catch (Exception ex)
-            {
-                throw new InternalServerErrorException(ex.Message);
-            }
+            return context.Tickets
+                .Include(t => t.Zone)
+                .ToList();
         }
     }
 }

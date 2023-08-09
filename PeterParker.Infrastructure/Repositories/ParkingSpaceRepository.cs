@@ -24,16 +24,16 @@ namespace PeterParker.Infrastructure.Repositories
             this.logger = logger;
         }
 
-        public List<ParkingSpaceDTO> GetAllByGeoJSON(string request)
+        public async Task<List<ParkingSpaceDTO>> GetAllByGeoJSON(string request)
         {
-            Zone zone = context.Zones
+            Zone zone = await context.Zones
             .Where(z => z.GeoJSON == request)
             .Include(z => z.ParkingSpaces)
                 .ThenInclude(ps => ps.Vehicle)
-            .FirstOrDefault();
+            .FirstOrDefaultAsync();
 
             if (zone == null)
-                throw new ZoneNotFoundException(request);
+                throw new NotFoundException($"Zone not found.");
 
             List<ParkingSpaceDTO> parkingSpaceDTOs = new List<ParkingSpaceDTO>();
 
