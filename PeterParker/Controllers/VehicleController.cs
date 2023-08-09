@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PeterParker.Data.DTOs;
 using PeterParker.Infrastructure;
 
@@ -17,56 +16,38 @@ namespace PeterParker.Controllers
         }
 
         [HttpPost("AddVehicle")]
-        public IActionResult AddVehicle(VehicleDTO request)
+        public async Task<IActionResult> AddVehicle(VehicleDTO request)
         {
-            if ((unitOfWork.VehicleRepository.AddVehicle(request)).Result)
-            {
-                unitOfWork.SaveChanges();
-                return Ok("Vehicle successfully added.");
-            }
-            return BadRequest("Something went wrong.");
+            await unitOfWork.VehicleRepository.AddVehicle(request);
+            return Ok("Vehicle successfully added.");
         }
 
         [HttpDelete("DeleteVehicle")]
-        public IActionResult DeleteVehicle(string request)
+        public async Task<IActionResult> DeleteVehicle(string request)
         {
-            if (unitOfWork.VehicleRepository.DeleteVehicle(request).Result)
-            {
-                unitOfWork.SaveChanges();
-                return Ok("Vehicle successfully deleted.");
-            }
-
-            return BadRequest("Something went wrong.");
+            await unitOfWork.VehicleRepository.DeleteVehicle(request);
+            return Ok("Vehicle successfully deleted.");
         }
 
         [HttpGet("GetAllVehiclesByEmail")]
-        public async Task<List<VehicleDTO>> GetAllVehiclesByEmail(string request)
+        public async Task<IActionResult> GetAllVehiclesByEmail(string request)
         {
-            return await unitOfWork.VehicleRepository.GetAllVehiclesForUserByEmail(request);
+            var result = await unitOfWork.VehicleRepository.GetAllVehiclesForUserByEmail(request);
+            return Ok(result);
         }
 
         [HttpPost("ParkVehicle")]
-        public IActionResult ParkVehicle(string registration, string zoneGeoJSON, int parkingSpaceNumber)
+        public async Task<IActionResult> ParkVehicle(string registration, string zoneGeoJSON, int parkingSpaceNumber)
         {
-            if (unitOfWork.VehicleRepository.ParkVehicle(registration, zoneGeoJSON, parkingSpaceNumber))
-            {
-                unitOfWork.SaveChanges();
-                return Ok("Successfully parked!");
-            }
-
-            return BadRequest("Something went wrong.");
+            await unitOfWork.VehicleRepository.ParkVehicle(registration, zoneGeoJSON, parkingSpaceNumber);
+            return Ok("Successfully parked!");
         }
 
         [HttpPost("UnparkVehicle")]
-        public IActionResult UnparkVehicle(string zoneGeoJSON, int parkingSpaceNumber)
+        public async Task<IActionResult> UnparkVehicle(string zoneGeoJSON, int parkingSpaceNumber)
         {
-            if (unitOfWork.VehicleRepository.UnparkVehicle(zoneGeoJSON, parkingSpaceNumber))
-            {
-                unitOfWork.SaveChanges();
-                return Ok("Successfully unparked!");
-            }
-
-            return BadRequest("Something went wrong.");
+            await unitOfWork.VehicleRepository.UnparkVehicle(zoneGeoJSON, parkingSpaceNumber);
+            return Ok("Successfully unparked!");
         }
     }
 }

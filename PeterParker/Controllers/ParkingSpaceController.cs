@@ -17,9 +17,9 @@ namespace PeterParker.Controllers
         }
 
         [HttpGet("GetAllByGeoJSON")]
-        public IActionResult GetAllByGeoJSON(string request)
+        public async Task<IActionResult> GetAllByGeoJSON(string request)
         {
-            var result = unitOfWork.ParkingSpaceRepository.GetAllByGeoJSON(request);
+            var result = await unitOfWork.ParkingSpaceRepository.GetAllByGeoJSON(request);
 
             return Ok(result);
         }
