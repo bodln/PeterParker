@@ -10,7 +10,7 @@ namespace PeterParker.Infrastructure.Interfaces
 {
     public interface IZoneRepository //: IRepository<Zone>
     {
-        void Add(ZoneDTO request);
-        List<Zone> GetAll();
+        Task Add(ZoneDTO request);
+        Task<List<Zone>> GetAll();
     }
 }

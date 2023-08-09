@@ -11,10 +11,10 @@ namespace PeterParker.Infrastructure.Interfaces
 {
     public interface IVehicleRepository //: IRepository<VehicleDTO>
     {
-        Task<bool> AddVehicle(VehicleDTO request);
-        Task<bool> DeleteVehicle(string request);
+        Task AddVehicle(VehicleDTO request);
+        Task DeleteVehicle(string request);
         Task<List<VehicleDTO>> GetAllVehiclesForUserByEmail(string request);
-        bool ParkVehicle(string registration, string zoneGeoJSON, int parkingSpaceNumber);
-        bool UnparkVehicle(string zoneGeoJSON, int parkingSpaceNumber);
+        Task ParkVehicle(string registration, string zoneGeoJSON, int parkingSpaceNumber);
+        Task UnparkVehicle(string zoneGeoJSON, int parkingSpaceNumber);
     }
 }
