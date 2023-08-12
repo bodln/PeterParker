@@ -53,7 +53,12 @@ public class ExceptionHandlingMiddleware
                 response.StatusCode = (int)HttpStatusCode.BadRequest;
                 errorResponse.Message = ex.Message;
                 break;
-                
+
+            case IncorrectLoginInfoException ex:
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                errorResponse.Message = ex.Message;
+                break;
+
             case DuplicateObjectException ex:
                 response.StatusCode = (int)HttpStatusCode.Conflict;
                 errorResponse.Message = ex.Message;

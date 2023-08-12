@@ -1,12 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using PeterParker.Data.DTOs;
-using PeterParker.Data.Models;
 using PeterParker.DTOs;
 using PeterParker.Infrastructure;
-using PeterParker.Infrastructure.Interfaces;
 
 namespace PeterParker.Controllers
 {
@@ -24,91 +19,55 @@ namespace PeterParker.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterUser(UserDTO request)
         {
-            IdentityResult result = unitOfWork.UserRepository.RegisterUser(request).Result;
-
-            if (result.Succeeded)
-            {
-                return Ok(request.Email + " Successfully Registered.");
-            }
-
-            return BadRequest(result.Errors);
+            await unitOfWork.UserRepository.RegisterUser(request);
+            return Ok(request.Email + " Successfully Registered.");
         }
 
         [HttpPost("LogIn")]
         public async Task<string> LogInUser(UserDTO request)
         {
-            return await unitOfWork.UserRepository.LogInUser(request);
+            string token = await unitOfWork.UserRepository.LogInUser(request);
+            return token;
         }
 
         [HttpPost("MakeAdmin")]
         //[Authorize("AdminOnly")]
         public async Task<IActionResult> AddAdminRole(string request)
         {
-            IdentityResult result = unitOfWork.UserRepository.AddAdminRole(request).Result;
-
-            if (result.Succeeded)
-            {
-                return Ok("User Successfully Made Admin");
-            }
-            else
-            {
-                return BadRequest(result.Errors);
-            }
+            await unitOfWork.UserRepository.AddAdminRole(request);
+            return Ok("User Successfully Made Admin");
         }
 
         [HttpPost("RevokeAdmin")]
         [Authorize("AdminOnly")]
         public async Task<IActionResult> RemoveAdminRole(string request)
         {
-            IdentityResult result = unitOfWork.UserRepository.RemoveAdminRole(request).Result;
+            await unitOfWork.UserRepository.RemoveAdminRole(request);
+            return Ok("User Successfully Revoked as Admin");
 
-            if (result.Succeeded)
-            {
-                return Ok("User Successfully Revoked as Admin");
-            }
-            else
-            {
-                return BadRequest(result.Errors);
-            }
         }
 
         [HttpPost("MakeInstructor")]
         [Authorize("AdminOnly")]
         public async Task<IActionResult> AddInstructorRole(string request)
         {
-            IdentityResult result = unitOfWork.UserRepository.AddInstructorRole(request).Result;
-
-            if (result.Succeeded)
-            {
-                return Ok("User Successfully Made Instructor");
-            }
-            else
-            {
-                return BadRequest(result.Errors);
-            }
+            await unitOfWork.UserRepository.AddInstructorRole(request);
+            return Ok("User Successfully Made Instructor");
         }
 
         [HttpPost("RevokeInstructor")]
         [Authorize("AdminOnly")]
         public async Task<IActionResult> RemoveInstructorRole(string request)
         {
-            IdentityResult result = unitOfWork.UserRepository.RemoveInstructorRole(request).Result;
-
-            if (result.Succeeded)
-            {
-                return Ok("User Successfully Revoked as Instructor");
-            }
-            else
-            {
-                return BadRequest(result.Errors);
-            }
+            await unitOfWork.UserRepository.RemoveInstructorRole(request);
+            return Ok("User Successfully Revoked as Instructor");
         }
 
         [HttpGet("GetAllUsersWithVehicles")]
         public async Task<List<UserDTO>> GetAll()
         {
-            return await unitOfWork.UserRepository.GetAll();
-
+            var result = await unitOfWork.UserRepository.GetAll();
+            return result;
         }
     }
 }

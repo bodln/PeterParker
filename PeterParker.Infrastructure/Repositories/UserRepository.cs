@@ -7,6 +7,7 @@ using PeterParker.Data;
 using PeterParker.Data.DTOs;
 using PeterParker.Data.Models;
 using PeterParker.DTOs;
+using PeterParker.Infrastructure.Exceptions;
 using PeterParker.Infrastructure.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -39,15 +40,13 @@ namespace PeterParker.Infrastructure.Repositories
             this.signInManager = signInManager;
         }
         //Keep in mind the return types
-        public async Task<IdentityResult> RegisterUser(UserDTO request)
+        public async Task RegisterUser(UserDTO request)
         {
             var user = mapper.Map<User>(request);
 
             var result = await userManager.CreateAsync(user, request.Password);
 
             await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "User"));
-
-            return result;
         }
 
         public async Task<string> LogInUser(UserDTO request)
@@ -61,7 +60,7 @@ namespace PeterParker.Infrastructure.Repositories
             }
             else
             {
-                return "Incorrect Login Information.";
+                throw new IncorrectLoginInfoException();
             }
         }
 
@@ -99,7 +98,7 @@ namespace PeterParker.Infrastructure.Repositories
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public async Task<IdentityResult> AddAdminRole(string request)
+        public async Task AddAdminRole(string request)
         {
             var user = await userManager.FindByEmailAsync(request);
             Claim adminClaim = new Claim(ClaimTypes.Role, "Admin");
@@ -107,13 +106,14 @@ namespace PeterParker.Infrastructure.Repositories
             if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
                 .Where(x => x.ClaimValue == adminClaim.Value).Count() > 0)
             {
-                return IdentityResult.Success;
+                //can also throw exception
+                return;
             }
 
-            return await userManager.AddClaimAsync(user, adminClaim);
+            await userManager.AddClaimAsync(user, adminClaim);
         }
 
-        public async Task<IdentityResult> RemoveAdminRole(string request)
+        public async Task RemoveAdminRole(string request)
         {
             var user = await userManager.FindByEmailAsync(request);
             Claim adminClaim = new Claim(ClaimTypes.Role, "Admin");
@@ -121,13 +121,12 @@ namespace PeterParker.Infrastructure.Repositories
             if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
                 .Where(x => x.ClaimValue == adminClaim.Value).Count() == 0)
             {
-                return IdentityResult.Success;
+                return;
             }
-
-            return await userManager.RemoveClaimAsync(user, adminClaim);
+            await userManager.RemoveClaimAsync(user, adminClaim);
         }
 
-        public async Task<IdentityResult> AddInstructorRole(string request)
+        public async Task AddInstructorRole(string request)
         {
             var user = await userManager.FindByEmailAsync(request);
             Claim instsructorClaim = new Claim(ClaimTypes.Role, "Instructor");
@@ -135,13 +134,13 @@ namespace PeterParker.Infrastructure.Repositories
             if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
                 .Where(x => x.ClaimValue == instsructorClaim.Value).Count() > 0)
             {
-                return IdentityResult.Success;
+                return;
             }
-
-            return await userManager.AddClaimAsync(user, instsructorClaim);
+            
+            await userManager.AddClaimAsync(user, instsructorClaim);
         }
 
-        public async Task<IdentityResult> RemoveInstructorRole(string request)
+        public async Task RemoveInstructorRole(string request)
         {
             var user = await userManager.FindByEmailAsync(request);
 
@@ -150,10 +149,10 @@ namespace PeterParker.Infrastructure.Repositories
             if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
                 .Where(x => x.ClaimValue == instsructorClaim.Value).Count() == 0)
             {
-                return IdentityResult.Success;
+                return;
             }
-
-            return await userManager.RemoveClaimAsync(user, instsructorClaim);
+            
+            await userManager.RemoveClaimAsync(user, instsructorClaim);
         }
 
         public async Task<List<UserDTO>> GetAll()
