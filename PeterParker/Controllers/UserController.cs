@@ -49,17 +49,17 @@ namespace PeterParker.Controllers
 
         [HttpPost("MakeInstructor")]
         [Authorize("AdminOnly")]
-        public async Task<IActionResult> AddInstructorRole(string request)
+        public async Task<IActionResult> AddInstructorRole(UserDTO request)
         {
-            await unitOfWork.UserRepository.AddInstructorRole(request);
+            await unitOfWork.UserRepository.AddInstructorRole(request.Email);
             return Ok("User Successfully Made Instructor");
         }
 
         [HttpPost("RevokeInstructor")]
         [Authorize("AdminOnly")]
-        public async Task<IActionResult> RemoveInstructorRole(string request)
+        public async Task<IActionResult> RemoveInstructorRole(UserDTO request)
         {
-            await unitOfWork.UserRepository.RemoveInstructorRole(request);
+            await unitOfWork.UserRepository.RemoveInstructorRole(request.Email);
             return Ok("User Successfully Revoked as Instructor");
         }
 
