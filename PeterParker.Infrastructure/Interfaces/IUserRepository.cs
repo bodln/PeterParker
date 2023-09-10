@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using PeterParker.Data.DTOs;
 using PeterParker.Data.Models;
 using PeterParker.DTOs;
@@ -16,6 +17,7 @@ namespace PeterParker.Infrastructure.Interfaces
         Task<string> LogInUser(UserDTO request);
         Task<List<UserDTO>> GetAll();
         Task RegisterUser(UserDTO request);
+        Task<UserDTO> ReturnUserData(HttpRequest request);
         Task AddAdminRole(string request);
         Task RemoveAdminRole(string request);
         Task RemoveInstructorRole(string request);

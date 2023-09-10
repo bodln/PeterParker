@@ -30,6 +30,13 @@ namespace PeterParker.Controllers
             return token;
         }
 
+        [HttpGet("Data")]
+        public async Task<IActionResult> GetUserData()
+        {
+            UserDTO userDTO = await unitOfWork.UserRepository.ReturnUserData(HttpContext.Request);
+            return Ok(userDTO);
+        }
+
         [HttpPost("MakeAdmin")]
         //[Authorize("AdminOnly")]
         public async Task<IActionResult> AddAdminRole(string request)

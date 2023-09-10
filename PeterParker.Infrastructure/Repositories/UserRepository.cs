@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -47,6 +48,23 @@ namespace PeterParker.Infrastructure.Repositories
             var result = await userManager.CreateAsync(user, request.Password);
 
             await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "User"));
+        }
+
+        public async Task<UserDTO> ReturnUserData(HttpRequest request)
+        {
+
+            string token = request.Headers["Authorization"].ToString().Replace("bearer ", "");
+
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            JwtSecurityToken jwtToken = handler.ReadToken(token) as JwtSecurityToken;
+
+            string email = jwtToken.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
+
+            var user = await userManager.FindByEmailAsync(email);
+            var userDTO = mapper.Map<UserDTO>(user);
+
+            return userDTO;
+
         }
 
         public async Task<string> LogInUser(UserDTO request)
