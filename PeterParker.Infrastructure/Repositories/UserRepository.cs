@@ -116,9 +116,9 @@ namespace PeterParker.Infrastructure.Repositories
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public async Task AddAdminRole(string request)
+        public async Task AddAdminRole(UserLoginDTO request)
         {
-            var user = await userManager.FindByEmailAsync(request);
+            var user = await userManager.FindByEmailAsync(request.Email);
             Claim adminClaim = new Claim(ClaimTypes.Role, "Admin");
 
             if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
@@ -131,9 +131,9 @@ namespace PeterParker.Infrastructure.Repositories
             await userManager.AddClaimAsync(user, adminClaim);
         }
 
-        public async Task RemoveAdminRole(string request)
+        public async Task RemoveAdminRole(UserLoginDTO request)
         {
-            var user = await userManager.FindByEmailAsync(request);
+            var user = await userManager.FindByEmailAsync(request.Email);
             Claim adminClaim = new Claim(ClaimTypes.Role, "Admin");
 
             if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
@@ -144,9 +144,9 @@ namespace PeterParker.Infrastructure.Repositories
             await userManager.RemoveClaimAsync(user, adminClaim);
         }
 
-        public async Task AddInspectorRole(string request)
+        public async Task AddInspectorRole(UserLoginDTO request)
         {
-            var user = await userManager.FindByEmailAsync(request);
+            var user = await userManager.FindByEmailAsync(request.Email);
             Claim instsructorClaim = new Claim(ClaimTypes.Role, "Inspector");
 
             if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
@@ -158,9 +158,9 @@ namespace PeterParker.Infrastructure.Repositories
             await userManager.AddClaimAsync(user, instsructorClaim);
         }
 
-        public async Task RemoveInspectorRole(string request)
+        public async Task RemoveInspectorRole(UserLoginDTO request)
         {
-            var user = await userManager.FindByEmailAsync(request);
+            var user = await userManager.FindByEmailAsync(request.Email);
 
             Claim instsructorClaim = new Claim(ClaimTypes.Role, "Inspector");
 

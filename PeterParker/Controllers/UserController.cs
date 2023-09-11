@@ -58,7 +58,7 @@ namespace PeterParker.Controllers
         [Authorize("AdminOnly")]
         public async Task<IActionResult> AddInspectorRole(UserLoginDTO request)
         {
-            await unitOfWork.UserRepository.AddInspectorRole(request.Email);
+            await unitOfWork.UserRepository.AddInspectorRole(request);
             return Ok("User Successfully Made Inspector");
         }
 
@@ -66,7 +66,7 @@ namespace PeterParker.Controllers
         [Authorize("AdminOnly")]
         public async Task<IActionResult> RemoveInspectorRole(UserLoginDTO request)
         {
-            await unitOfWork.UserRepository.RemoveInspectorRole(request.Email);
+            await unitOfWork.UserRepository.RemoveInspectorRole(request);
             return Ok("User Successfully Revoked as Inspector");
         }
 
