@@ -41,7 +41,7 @@ namespace PeterParker.Infrastructure.Repositories
             this.signInManager = signInManager;
         }
         //Keep in mind the return types
-        public async Task RegisterUser(UserDTO request)
+        public async Task RegisterUser(UserRegisterDTO request)
         {
             var user = mapper.Map<User>(request);
 
@@ -50,7 +50,7 @@ namespace PeterParker.Infrastructure.Repositories
             await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "User"));
         }
 
-        public async Task<UserDTO> ReturnUserData(HttpRequest request)
+        public async Task<UserDataDTO> ReturnUserData(HttpRequest request)
         {
 
             string token = request.Headers["Authorization"].ToString().Replace("bearer ", "");
@@ -61,20 +61,20 @@ namespace PeterParker.Infrastructure.Repositories
             string email = jwtToken.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
 
             var user = await userManager.FindByEmailAsync(email);
-            var userDTO = mapper.Map<UserDTO>(user);
+            var userDTO = mapper.Map<UserDataDTO>(user);
 
             return userDTO;
 
         }
 
-        public async Task<string> LogInUser(UserDTO request)
+        public async Task<string> LogInUser(UserLoginDTO request)
         {
             var result = await signInManager.PasswordSignInAsync(request.Email,
                     request.Password, isPersistent: false, lockoutOnFailure: false);
 
             if (result.Succeeded)
             {
-                return await BuildTokenAsync(request);
+                return await BuildTokenAsync(request.Email);
             }
             else
             {
@@ -82,15 +82,15 @@ namespace PeterParker.Infrastructure.Repositories
             }
         }
 
-        private async Task<string> BuildTokenAsync(UserDTO request)
+        private async Task<string> BuildTokenAsync(string userEmail)
         {
             var claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.Email, request.Email),
+                new Claim(ClaimTypes.Email, userEmail),
                 new Claim(ClaimTypes.Role, "User"),
             };
 
-            var user = await userManager.FindByEmailAsync(request.Email);
+            var user = await userManager.FindByEmailAsync(userEmail);
             var claimList = await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync();
 
             foreach (var claim in claimList)
@@ -173,15 +173,15 @@ namespace PeterParker.Infrastructure.Repositories
             await userManager.RemoveClaimAsync(user, instsructorClaim);
         }
 
-        public async Task<List<UserDTO>> GetAll()
+        public async Task<List<UserDataDTO>> GetAll()
         {
             var users = await context.Users.ToListAsync();
 
-            List<UserDTO> usersDTO = new List<UserDTO>();
+            List<UserDataDTO> usersDTO = new List<UserDataDTO>();
 
             foreach (var user in users)
             {
-                UserDTO userDTO = mapper.Map<UserDTO>(user);
+                UserDataDTO userDTO = mapper.Map<UserDataDTO>(user);
                 List<VehicleDTO> vehiclesDTO = new List<VehicleDTO>();
                 foreach (Vehicle vehicle in await context.Vehicles.Where(v => v.User == user).ToListAsync())
                 {

@@ -14,13 +14,13 @@ namespace PeterParker.Infrastructure.Interfaces
 {
     public interface IUserRepository
     {
-        Task<string> LogInUser(UserDTO request);
-        Task<List<UserDTO>> GetAll();
-        Task RegisterUser(UserDTO request);
-        Task<UserDTO> ReturnUserData(HttpRequest request);
-        Task AddAdminRole(string request);
-        Task RemoveAdminRole(string request);
-        Task RemoveInspectorRole(string request);
-        Task AddInspectorRole(string request);
+        Task<string> LogInUser(UserLoginDTO request);
+        Task<List<UserDataDTO>> GetAll();
+        Task RegisterUser(UserRegisterDTO request);
+        Task<UserDataDTO> ReturnUserData(HttpRequest request);
+        Task AddAdminRole(UserLoginDTO request);
+        Task RemoveAdminRole(UserLoginDTO request);
+        Task RemoveInspectorRole(UserLoginDTO request);
+        Task AddInspectorRole(UserLoginDTO request);
     }
 }

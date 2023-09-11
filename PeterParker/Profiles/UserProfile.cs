@@ -15,13 +15,27 @@ public class UserProfile : Profile
     }
     public UserProfile()
     {
-        CreateMap<UserDTO, User>()
+        CreateMap<UserDataDTO, User>()
             .ForMember(dest =>
                 dest.UserName,
                 opt => opt.MapFrom(src => src.Email));
         
-        CreateMap<User, UserDTO>();
-        
+        CreateMap<User, UserDataDTO>();
+
+        CreateMap<UserRegisterDTO, User>()
+            .ForMember(dest =>
+                dest.UserName,
+                opt => opt.MapFrom(src => src.Email));
+
+        CreateMap<UserRegisterDTO, User>();
+
+        CreateMap<UserLoginDTO, User>()
+            .ForMember(dest =>
+                dest.UserName,
+                opt => opt.MapFrom(src => src.Email));
+
+        CreateMap<UserLoginDTO, User>();
+
         CreateMap<VehicleDTO, Vehicle>()
             .ForMember(dest =>
                 dest.User,
