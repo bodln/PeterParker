@@ -21,4 +21,5 @@ public class User : IdentityUser
     public List<Ticket> Tickets { get; set; } = new List<Ticket>();
     public Pass? Pass { get; set; }
     public Subscription? Subscription { get; set; }
+    public RefreshToken? RefreshToken { get; set; }
 }
