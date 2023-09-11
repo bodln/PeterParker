@@ -12,7 +12,7 @@ public class ParkingSpace
     public string Street { get; set; } = string.Empty;
     public Vehicle? Vehicle { get; set; }
     // Here i decided to have a list of ParkingSpaces in zone rather than each ParkingSpace
-    // keep track of its zone. What i have in mind with this is that when an Instructor
+    // keep track of its zone. What i have in mind with this is that when an Inspector
     // checks all of the parking spaces in a zone and wants to issue a ticket the Database
     // will already know which zone the ParkingSpace belongs to and can access the Vehicle
     // and by extension its owner (User) (TableOptimisationV1)

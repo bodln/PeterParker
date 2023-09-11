@@ -54,20 +54,20 @@ namespace PeterParker.Controllers
 
         }
 
-        [HttpPost("MakeInstructor")]
+        [HttpPost("MakeInspector")]
         [Authorize("AdminOnly")]
-        public async Task<IActionResult> AddInstructorRole(UserDTO request)
+        public async Task<IActionResult> AddInspectorRole(UserDTO request)
         {
-            await unitOfWork.UserRepository.AddInstructorRole(request.Email);
-            return Ok("User Successfully Made Instructor");
+            await unitOfWork.UserRepository.AddInspectorRole(request.Email);
+            return Ok("User Successfully Made Inspector");
         }
 
-        [HttpPost("RevokeInstructor")]
+        [HttpPost("RevokeInspector")]
         [Authorize("AdminOnly")]
-        public async Task<IActionResult> RemoveInstructorRole(UserDTO request)
+        public async Task<IActionResult> RemoveInspectorRole(UserDTO request)
         {
-            await unitOfWork.UserRepository.RemoveInstructorRole(request.Email);
-            return Ok("User Successfully Revoked as Instructor");
+            await unitOfWork.UserRepository.RemoveInspectorRole(request.Email);
+            return Ok("User Successfully Revoked as Inspector");
         }
 
         [HttpGet("GetAllUsersWithVehicles")]

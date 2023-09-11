@@ -16,7 +16,7 @@ namespace PeterParker.Data.Models
         public string Registration { get; set; } = string.Empty;
         // My thoughts are the following:
         // The owner(User) of the Vehicle should be kept here opposing the previous arrangement of the Vehicle list
-        // being kept by the User. Purpose of this change is that when a User or an Instructor goes through the list of 
+        // being kept by the User. Purpose of this change is that when a User or an Inspector goes through the list of 
         // ParkingSpaces in a Zone they can take the following path and collect data along the way:
         // Zone -> ParkingSpaces -> Vehicle -> User
         // In case of the request for all the Vehicles belonging to a User a detour must be taken, but

@@ -144,10 +144,10 @@ namespace PeterParker.Infrastructure.Repositories
             await userManager.RemoveClaimAsync(user, adminClaim);
         }
 
-        public async Task AddInstructorRole(string request)
+        public async Task AddInspectorRole(string request)
         {
             var user = await userManager.FindByEmailAsync(request);
-            Claim instsructorClaim = new Claim(ClaimTypes.Role, "Instructor");
+            Claim instsructorClaim = new Claim(ClaimTypes.Role, "Inspector");
 
             if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
                 .Where(x => x.ClaimValue == instsructorClaim.Value).Count() > 0)
@@ -158,11 +158,11 @@ namespace PeterParker.Infrastructure.Repositories
             await userManager.AddClaimAsync(user, instsructorClaim);
         }
 
-        public async Task RemoveInstructorRole(string request)
+        public async Task RemoveInspectorRole(string request)
         {
             var user = await userManager.FindByEmailAsync(request);
 
-            Claim instsructorClaim = new Claim(ClaimTypes.Role, "Instructor");
+            Claim instsructorClaim = new Claim(ClaimTypes.Role, "Inspector");
 
             if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
                 .Where(x => x.ClaimValue == instsructorClaim.Value).Count() == 0)

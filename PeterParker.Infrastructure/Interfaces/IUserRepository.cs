@@ -20,7 +20,7 @@ namespace PeterParker.Infrastructure.Interfaces
         Task<UserDTO> ReturnUserData(HttpRequest request);
         Task AddAdminRole(string request);
         Task RemoveAdminRole(string request);
-        Task RemoveInstructorRole(string request);
-        Task AddInstructorRole(string request);
+        Task RemoveInspectorRole(string request);
+        Task AddInspectorRole(string request);
     }
 }
