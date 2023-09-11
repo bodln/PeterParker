@@ -106,12 +106,6 @@ namespace PeterParker.Infrastructure.Repositories
 
         private async Task SetRefreshToken(RefreshToken newRefreshToken, string email)
         {
-            var cookieOptions = new CookieOptions
-            {
-                HttpOnly = true,
-                Expires = newRefreshToken.Expires
-            };
-
             User user = await userManager.FindByEmailAsync(email);
 
             context.RefreshTokens.Add(newRefreshToken);
@@ -154,6 +148,30 @@ namespace PeterParker.Infrastructure.Repositories
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<AuthTokens> TokenRefresh(string refreshToken)
+        {
+            User user = await context.Users
+                .Include(u => u.RefreshToken)
+                .Where(u => u.RefreshToken.Token.Equals(refreshToken))
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                throw new NotFoundException("User not found.");
+            }
+            // Make a seperate create token function or put it in User class
+            string token = await BuildTokenAsync(user.Email);
+
+            var newRefreshToken = GenerateRefershToken();
+            await SetRefreshToken(newRefreshToken, user.Email);
+
+            return new AuthTokens
+            {
+                Token = token,
+                RefreshToken = newRefreshToken.Token
+            };
         }
 
         public async Task AddAdminRole(UserLoginDTO request)

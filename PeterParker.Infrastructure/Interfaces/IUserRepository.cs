@@ -22,5 +22,6 @@ namespace PeterParker.Infrastructure.Interfaces
         Task RemoveAdminRole(UserLoginDTO request);
         Task RemoveInspectorRole(UserLoginDTO request);
         Task AddInspectorRole(UserLoginDTO request);
+        Task<AuthTokens> TokenRefresh(string refreshToken);
     }
 }

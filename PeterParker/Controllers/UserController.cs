@@ -38,6 +38,14 @@ namespace PeterParker.Controllers
             return Ok(userDTO);
         }
 
+        [HttpPost("TokenRefresh")]
+        public async Task<AuthTokens> TokenRefresh()
+        {
+            //string refreshToken = Request.Cookies["refresh-token"];
+            string refreshToken = Request.Headers["X-PP-REFRESH-TOKEN"].ToString();
+            return await unitOfWork.UserRepository.TokenRefresh(refreshToken);
+        }
+
         [HttpPost("MakeAdmin")]
         //[Authorize("AdminOnly")]
         public async Task<IActionResult> AddAdminRole(UserLoginDTO request)
