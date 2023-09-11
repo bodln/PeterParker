@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -67,19 +68,58 @@ namespace PeterParker.Infrastructure.Repositories
 
         }
 
-        public async Task<string> LogInUser(UserLoginDTO request)
+        public async Task<AuthTokens> LogInUser(UserLoginDTO request)
         {
             var result = await signInManager.PasswordSignInAsync(request.Email,
                     request.Password, isPersistent: false, lockoutOnFailure: false);
 
             if (result.Succeeded)
             {
-                return await BuildTokenAsync(request.Email);
+                string token = await BuildTokenAsync(request.Email);
+
+                var refreshToken = GenerateRefershToken();
+                await SetRefreshToken(refreshToken, request.Email);
+
+                return new AuthTokens
+                {
+                    Token = token,
+                    RefreshToken = refreshToken.Token
+                };
             }
             else
             {
                 throw new IncorrectLoginInfoException();
             }
+        }
+
+        private RefreshToken GenerateRefershToken()
+        {
+            var refreshToken = new RefreshToken
+            {
+                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+                Expires = DateTime.Now.AddDays(7),
+                Created = DateTime.Now
+            };
+
+            return refreshToken;
+        }
+
+        private async Task SetRefreshToken(RefreshToken newRefreshToken, string email)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = newRefreshToken.Expires
+            };
+
+            User user = await userManager.FindByEmailAsync(email);
+
+            context.RefreshTokens.Add(newRefreshToken);
+            // this adds a new refresh token to the database and user, but doesnt delete the old one or even check of its existance
+            await context.SaveChangesAsync();
+
+            user.RefreshToken = newRefreshToken; 
+            await userManager.UpdateAsync(user);
         }
 
         private async Task<string> BuildTokenAsync(string userEmail)

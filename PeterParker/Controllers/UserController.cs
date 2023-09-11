@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PeterParker.Data.Models;
 using PeterParker.DTOs;
 using PeterParker.Infrastructure;
 
@@ -24,10 +25,10 @@ namespace PeterParker.Controllers
         }
 
         [HttpPost("LogIn")]
-        public async Task<string> LogInUser(UserLoginDTO request)
+        public async Task<AuthTokens> LogInUser(UserLoginDTO request)
         {
-            string token = await unitOfWork.UserRepository.LogInUser(request);
-            return token;
+            AuthTokens tokens = await unitOfWork.UserRepository.LogInUser(request);
+            return tokens;
         }
 
         [HttpGet("Data")]

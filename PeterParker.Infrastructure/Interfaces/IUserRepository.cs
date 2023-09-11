@@ -14,7 +14,7 @@ namespace PeterParker.Infrastructure.Interfaces
 {
     public interface IUserRepository
     {
-        Task<string> LogInUser(UserLoginDTO request);
+        Task<AuthTokens> LogInUser(UserLoginDTO request);
         Task<List<UserDataDTO>> GetAll();
         Task RegisterUser(UserRegisterDTO request);
         Task<UserDataDTO> ReturnUserData(HttpRequest request);
