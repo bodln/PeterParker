@@ -32,6 +32,7 @@ namespace PeterParker.Controllers
         }
 
         [HttpGet("Data")]
+        [Authorize]
         public async Task<IActionResult> GetUserData()
         {
             UserDataDTO userDTO = await unitOfWork.UserRepository.ReturnUserData(HttpContext.Request);
@@ -42,7 +43,7 @@ namespace PeterParker.Controllers
         public async Task<AuthTokens> TokenRefresh()
         {
             //string refreshToken = Request.Cookies["refresh-token"];
-            string refreshToken = Request.Headers["X-PP-REFRESH-TOKEN"].ToString();
+            string refreshToken = Request.Headers["X-Pp-Refresh-Token"].ToString();
             return await unitOfWork.UserRepository.TokenRefresh(refreshToken);
         }
 
