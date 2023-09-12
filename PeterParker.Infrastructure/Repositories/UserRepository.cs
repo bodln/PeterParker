@@ -143,11 +143,9 @@ namespace PeterParker.Infrastructure.Repositories
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSection("Jwt:Key").Value));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
-            var expiration = DateTime.UtcNow.AddDays(1);
-
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(1),
+                expires: DateTime.Now.AddSeconds(30),
                 issuer: config.GetSection("Jwt:Issuer").Value,
                 audience: config.GetSection("Jwt:Audience").Value,
                 signingCredentials: creds);
