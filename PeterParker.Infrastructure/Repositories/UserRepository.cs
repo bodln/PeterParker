@@ -106,10 +106,15 @@ namespace PeterParker.Infrastructure.Repositories
 
         private async Task SetRefreshToken(RefreshToken newRefreshToken, string email)
         {
-            User user = await userManager.FindByEmailAsync(email);
+            //User user = await userManager.FindByEmailAsync(email);
+            User user = context.Users
+                .Include(u => u.RefreshToken)
+                .Where(u => u.Email == email)
+                .FirstOrDefault();
 
+            context.RefreshTokens.Remove(user.RefreshToken);
+            //context.RefreshTokens.Remove()
             context.RefreshTokens.Add(newRefreshToken);
-            // this adds a new refresh token to the database and user, but doesnt delete the old one or even check of its existance
             await context.SaveChangesAsync();
 
             user.RefreshToken = newRefreshToken; 
