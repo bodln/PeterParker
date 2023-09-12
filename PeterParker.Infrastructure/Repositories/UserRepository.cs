@@ -157,6 +157,15 @@ namespace PeterParker.Infrastructure.Repositories
 
         public async Task<AuthTokens> TokenRefresh(string refreshToken)
         {
+            if (refreshToken == null || 
+                context.RefreshTokens
+                .Where(rt => rt.Token == refreshToken)
+                .FirstOrDefault()
+                .Expires < DateTime.Now)
+            {
+                throw new InvalidRefreshToken();
+            }
+
             User user = await context.Users
                 .Include(u => u.RefreshToken)
                 .Where(u => u.RefreshToken.Token.Equals(refreshToken))

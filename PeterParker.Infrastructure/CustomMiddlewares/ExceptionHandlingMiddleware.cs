@@ -62,10 +62,15 @@ public class ExceptionHandlingMiddleware
             case DuplicateObjectException ex:
                 response.StatusCode = (int)HttpStatusCode.Conflict;
                 errorResponse.Message = ex.Message;
-                break;
+                break; 
 
             case ParkingSpaceTakenException ex:
                 response.StatusCode = (int)HttpStatusCode.Conflict;
+                errorResponse.Message = ex.Message;
+                break;
+
+            case InvalidRefreshToken ex:
+                response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 errorResponse.Message = ex.Message;
                 break;
 
