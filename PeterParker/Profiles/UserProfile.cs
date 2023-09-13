@@ -60,19 +60,17 @@ public class UserProfile : Profile
 
         CreateMap<Ticket, TicketDTO>();
 
-        CreateMap<ZoneDTO, Zone>()
-            .ForMember(
-                dest =>
-                dest.ParkingSpaces, opt => opt.Ignore()
-            );
+        CreateMap<ZoneDTO, Zone>();
 
-        CreateMap<ParkingSpace, ParkingSpaceDTO>()
-            .ForMember(
-                dest =>
-                dest.VehicleRegistration, opt => opt.MapFrom(src => src.Vehicle.Registration)
-            ).ForMember(
-                dest =>
-                dest.GarageName, opt => opt.Ignore()
-            );
+        CreateMap<Zone, ZoneDataDTO>();
+
+        //CreateMap<ParkingSpace, ParkingSpaceDTO>()
+        //    .ForMember(
+        //        dest =>
+        //        dest.VehicleRegistration, opt => opt.MapFrom(src => src.Vehicle.Registration)
+        //    ).ForMember(
+        //        dest =>
+        //        dest.GarageName, opt => opt.Ignore()
+        //    );
     }
 }

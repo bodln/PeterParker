@@ -24,43 +24,25 @@ namespace PeterParker.Infrastructure.Repositories
             this.logger = logger;
         }
 
-        public async Task Add(ZoneDTO request)
+        public async Task<ZoneDataDTO> Add(ZoneDTO request)
         {
-            if (request.GeoJSON == "" || request.TotalSpaces == null)
+            if (request.GeoJSON == "")
                 throw new MissingParametersException("Missing parameters for zone creation.");
-
             Zone zone = mapper.Map<Zone>(request);
+            zone.GUID = new Guid();
             context.Zones.Add(zone);
             await context.SaveChangesAsync();
+            ZoneDataDTO response = mapper.Map<ZoneDataDTO>(zone);
 
-            List<ParkingSpace> parkingSpaces = new List<ParkingSpace>();
-
-            for (int i = 0; i < zone.TotalSpaces; i++)
-            {
-                // a method for different parkingspaces to have
-                // different streets in the same zone must be implemented lazy rn
-                parkingSpaces.Add(new ParkingSpace
-                {
-                    Street = "Implement this",
-                    Vehicle = null,
-                    Garage = null,
-                    Number = i + 1
-                });
-            }
-
-            context.ParkingSpaces.AddRange(parkingSpaces);
-            await context.SaveChangesAsync();
-
-            zone.ParkingSpaces = parkingSpaces;
-            await context.SaveChangesAsync();
-
-            return;
+            return response;
         }
 
         public async Task<List<Zone>> GetAll()
         {
-            return await context.Zones.Include(z => z.ParkingSpaces)
-                        .ThenInclude(ps => ps.Vehicle)
+            // make this return ZoneDataDTO
+            return await context.Zones.Include(z => z.ParkingAreas)
+                        .ThenInclude(pa => pa.ParkingSpaces)
+                            .ThenInclude(ps => ps.Vehicle)
                         .ToListAsync(); 
         }
     }
