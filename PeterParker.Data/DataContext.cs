@@ -31,7 +31,7 @@ public class DataContext : IdentityDbContext<User>
 
     public DbSet<Zone> Zones { get; set; }
     public DbSet<ParkingSpace> ParkingSpaces { get; set; }
-    public DbSet<Garage> Garage { get; set; }
+    public DbSet<ParkingArea> ParkingAreas { get; set; }
     public DbSet<Pass> Passes { get; set; }
     public DbSet<Subscription> Subscriptions { get; set; }
     public DbSet<Ticket> Tickets { get; set; }
