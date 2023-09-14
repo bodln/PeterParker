@@ -44,9 +44,14 @@ namespace PeterParker.Infrastructure.Repositories
         //Keep in mind the return types
         public async Task RegisterUser(UserRegisterDTO request)
         {
+            if (await userManager.FindByEmailAsync(request.Email) != null)
+            {
+                throw new EmailTakenException($"Account with the email address: {request.Email}, already exists.");
+            }
+
             var user = mapper.Map<User>(request);
 
-            var result = await userManager.CreateAsync(user, request.Password);
+            await userManager.CreateAsync(user, request.Password);
 
             await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "User"));
         }
@@ -112,7 +117,11 @@ namespace PeterParker.Infrastructure.Repositories
                 .Where(u => u.Email == email)
                 .FirstOrDefault();
 
-            context.RefreshTokens.Remove(user.RefreshToken);
+            if (user.RefreshToken != null)
+            {
+                context.RefreshTokens.Remove(user.RefreshToken);
+            }
+            
             //context.RefreshTokens.Remove()
             context.RefreshTokens.Add(newRefreshToken);
             await context.SaveChangesAsync();

@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System.Data.Entity.Infrastructure;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using PeterParker.Infrastructure;
 using PeterParker.Infrastructure.Exceptions;
+using System.Data.Entity.Infrastructure;
 using System.Net;
 using System.Text.Json;
-using Microsoft.Data.SqlClient;
 //using ExceptionHandling.Models.Responses;
 
 namespace ExceptionHandling.CustomMiddlewares;
@@ -59,10 +59,15 @@ public class ExceptionHandlingMiddleware
                 errorResponse.Message = ex.Message;
                 break;
 
+            case EmailTakenException ex:
+                response.StatusCode = (int)HttpStatusCode.Conflict;
+                errorResponse.Message = ex.Message;
+                break;
+
             case DuplicateObjectException ex:
                 response.StatusCode = (int)HttpStatusCode.Conflict;
                 errorResponse.Message = ex.Message;
-                break; 
+                break;
 
             case ParkingSpaceTakenException ex:
                 response.StatusCode = (int)HttpStatusCode.Conflict;
