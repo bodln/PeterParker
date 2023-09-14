@@ -27,8 +27,6 @@ public class UserProfile : Profile
                 dest.UserName,
                 opt => opt.MapFrom(src => src.Email));
 
-        CreateMap<UserRegisterDTO, User>();
-
         CreateMap<UserLoginDTO, User>()
             .ForMember(dest =>
                 dest.UserName,
