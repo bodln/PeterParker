@@ -28,8 +28,9 @@ namespace PeterParker.Infrastructure.Repositories
         {
             Zone zone = await context.Zones
             .Where(z => z.GeoJSON == request)
-            .Include(z => z.ParkingSpaces)
-                .ThenInclude(ps => ps.Vehicle)
+            .Include(z => z.ParkingAreas)
+                .ThenInclude(pa => pa.ParkingSpaces)
+                    .ThenInclude(ps => ps.Vehicle)
             .FirstOrDefaultAsync();
 
             if (zone == null)
@@ -37,10 +38,12 @@ namespace PeterParker.Infrastructure.Repositories
 
             List<ParkingSpaceDTO> parkingSpaceDTOs = new List<ParkingSpaceDTO>();
 
-            foreach (ParkingSpace parkingSpace in zone.ParkingSpaces)
-            {
-                parkingSpaceDTOs.Add(mapper.Map<ParkingSpaceDTO>(parkingSpace));
-            }
+            // Implement getting all ParkingSpaces by Zone, also find out if it should be by area or one and all
+
+            //foreach (ParkingSpace parkingSpace in zone.ParkingAreas)
+            //{
+            //    parkingSpaceDTOs.Add(mapper.Map<ParkingSpaceDTO>(parkingSpace));
+            //}
 
             return parkingSpaceDTOs;
         }
