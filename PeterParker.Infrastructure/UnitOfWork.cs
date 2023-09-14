@@ -14,7 +14,6 @@ namespace PeterParker.Infrastructure
 
         public UnitOfWork(
             DataContext context,
-            IGarageRepository garageRepository,
             IParkingSpaceRepository parkingSpaceRepository,
             IPassRepository passRepository,
             ISubscriptionRepository subscriptionRepository,
@@ -25,7 +24,6 @@ namespace PeterParker.Infrastructure
             )
         {
             this.context = context;
-            GarageRepository = garageRepository;
             ParkingSpaceRepository = parkingSpaceRepository;
             PassRepository = passRepository;
             SubscriptionRepository = subscriptionRepository;
@@ -35,7 +33,6 @@ namespace PeterParker.Infrastructure
             VehicleRepository = vehicleRepository;
         }
 
-        public IGarageRepository GarageRepository { get; }
         public IParkingSpaceRepository ParkingSpaceRepository { get; }
         public IPassRepository PassRepository { get; }
         public ISubscriptionRepository SubscriptionRepository { get; }
