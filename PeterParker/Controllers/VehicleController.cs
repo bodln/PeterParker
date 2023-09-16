@@ -37,16 +37,16 @@ namespace PeterParker.Controllers
         }
 
         [HttpPost("ParkVehicle")]
-        public async Task<IActionResult> ParkVehicle(string registration, string zoneGeoJSON, int parkingSpaceNumber)
+        public async Task<IActionResult> ParkVehicle(Guid parkingSpace, string registration)
         {
-            await unitOfWork.VehicleRepository.ParkVehicle(registration, zoneGeoJSON, parkingSpaceNumber);
+            await unitOfWork.VehicleRepository.ParkVehicle(parkingSpace, registration);
             return Ok("Successfully parked!");
         }
 
         [HttpPost("UnparkVehicle")]
-        public async Task<IActionResult> UnparkVehicle(string zoneGeoJSON, int parkingSpaceNumber)
+        public async Task<IActionResult> UnparkVehicle(Guid request)
         {
-            await unitOfWork.VehicleRepository.UnparkVehicle(zoneGeoJSON, parkingSpaceNumber);
+            await unitOfWork.VehicleRepository.UnparkVehicle(request);
             return Ok("Successfully unparked!");
         }
     }

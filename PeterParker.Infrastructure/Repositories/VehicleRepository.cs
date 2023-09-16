@@ -36,6 +36,7 @@ namespace PeterParker.Infrastructure.Repositories
 
             Vehicle vehicle = mapper.Map<Vehicle>(request);
             vehicle.User = await userManager.FindByEmailAsync(request.UserEmail);
+            vehicle.GUID = Guid.NewGuid();
 
             if (vehicle.User == null)
             {
@@ -43,7 +44,7 @@ namespace PeterParker.Infrastructure.Repositories
             }
 
             context.Vehicles.Add(vehicle);
-            await context.SaveChangesAsync();
+            context.SaveChanges();
         }
 
         public async Task<List<VehicleDTO>> GetAllVehiclesForUserByEmail(string request)
@@ -57,12 +58,12 @@ namespace PeterParker.Infrastructure.Repositories
 
             List<Vehicle> vehicles = await context.Vehicles.Where(v => v.User == user).ToListAsync();
 
-            List<VehicleDTO> vehiclesDTO = new List<VehicleDTO>();
+            List<VehicleDTO> vehiclesDTO = mapper.Map<List<VehicleDTO>>(vehicles);
 
-            foreach (var vehicle in vehicles)
-            {
-                vehiclesDTO.Add(mapper.Map<VehicleDTO>(vehicle));
-            }
+            //foreach (var vehicle in vehicles)
+            //{
+            //    vehiclesDTO.Add(mapper.Map<VehicleDTO>(vehicle));
+            //}
 
             return vehiclesDTO;
         }
@@ -89,63 +90,46 @@ namespace PeterParker.Infrastructure.Repositories
             await context.SaveChangesAsync();
         }
 
-        public async Task ParkVehicle(string registration, string zoneGeoJSON, int parkingSpaceNumber)
+        public async Task ParkVehicle(Guid parkingSpaceGuid, string registration)
         {
-            //Vehicle vehicle = await context.Vehicles.Where(v => v.Registration == registration).FirstOrDefaultAsync();
+            Vehicle vehicle = await context.Vehicles.Where(v => v.Registration == registration).FirstOrDefaultAsync();
 
-            //if (vehicle == null)
-            //{
-            //    throw new NotFoundException($"The vehicles with the registration: {registration}, could not be found.");
-            //}
+            if (vehicle == null)
+            {
+                throw new NotFoundException($"The vehicles with the registration: {registration}, could not be found.");
+            }
 
-            //Zone zone = await context.Zones
-            //    .Where(z => z.GeoJSON == zoneGeoJSON)
-            //    .Include(z => z.ParkingSpaces)
-            //        .ThenInclude(ps => ps.Vehicle)
-            //    .FirstOrDefaultAsync();
+            ParkingSpace parkingSpace = await context.ParkingSpaces
+                .Where(ps => ps.GUID == parkingSpaceGuid)
+                .FirstOrDefaultAsync();
 
-            //if (zone == null)
-            //{
-            //    throw new NotFoundException("Zone could not be found.");
-            //}
+            if (parkingSpace.Vehicle == null)
+            {
+                parkingSpace.Vehicle = vehicle;
+            }
+            else
+            {
+                throw new ParkingSpaceTakenException();
+            }
 
-            //ParkingSpace parkingSpace = zone.ParkingSpaces.FirstOrDefault(ps => ps.Number == parkingSpaceNumber);
-
-            //if (parkingSpace == null)
-            //{
-            //    throw new NotFoundException($"The parking space with number: {parkingSpaceNumber}, could not be found.");
-            //}
-
-            //if (parkingSpace.Vehicle == null)
-            //{
-            //    parkingSpace.Vehicle = vehicle;
-            //}
-            //else
-            //{
-            //    throw new ParkingSpaceTakenException();
-            //}
-            
-            //await context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
         // I'm thinking that on the frontend the user knows where his vehicle is parked
         // so when unparking just send that info with no need of sending the registration
-        public async Task UnparkVehicle(string zoneGeoJSON, int parkingSpaceNumber)
+        public async Task UnparkVehicle(Guid parkingSpaceGuid)
         {
-            //Zone zone = await context.Zones
-            //    .Where(z => z.GeoJSON == zoneGeoJSON)
-            //    .Include(z => z.ParkingSpaces)
-            //    .ThenInclude(ps => ps.Vehicle)
-            //    .FirstOrDefaultAsync();
+            ParkingSpace parkingSpace = await context.ParkingSpaces
+                .Where(ps => ps.GUID == parkingSpaceGuid)
+                .Include(ps => ps.Vehicle)
+                .FirstOrDefaultAsync();
 
-            //ParkingSpace parkingSpace = zone.ParkingSpaces.FirstOrDefault(ps => ps.Number == parkingSpaceNumber);
+            if (parkingSpace == null)
+            {
+                throw new NotFoundException($"The parking space with number: {parkingSpace.Number}, could not be found.");
+            }
 
-            //if (parkingSpace == null)
-            //{
-            //    throw new NotFoundException($"The parking space with number: {parkingSpaceNumber}, could not be found.");
-            //}
-
-            //parkingSpace.Vehicle = null;
-            //await context.SaveChangesAsync();
+            parkingSpace.Vehicle = null;
+            await context.SaveChangesAsync();
         }
 
         public List<VehicleDTO> GetAll()

@@ -256,18 +256,12 @@ namespace PeterParker.Infrastructure.Repositories
         {
             var users = await context.Users.ToListAsync();
 
-            List<UserDataDTO> usersDTO = new List<UserDataDTO>();
+            List<UserDataDTO> usersDTO = mapper.Map<List<UserDataDTO>>(users);
 
-            foreach (var user in users)
+            foreach (var userDTO in usersDTO)
             {
-                UserDataDTO userDTO = mapper.Map<UserDataDTO>(user);
-                List<VehicleDTO> vehiclesDTO = new List<VehicleDTO>();
-                foreach (Vehicle vehicle in await context.Vehicles.Where(v => v.User == user).ToListAsync())
-                {
-                    vehiclesDTO.Add(mapper.Map<VehicleDTO>(vehicle));
-                }
-                userDTO.Vehicles = vehiclesDTO;
-                usersDTO.Add(userDTO);
+                userDTO.Vehicles = mapper
+                    .Map<List<VehicleDTO>>(await context.Vehicles.Where(v => v.User.Email == userDTO.Email).ToListAsync());
             }
 
             return usersDTO;

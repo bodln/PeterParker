@@ -14,7 +14,7 @@ namespace PeterParker.Infrastructure.Interfaces
         Task AddVehicle(VehicleDTO request);
         Task DeleteVehicle(string request);
         Task<List<VehicleDTO>> GetAllVehiclesForUserByEmail(string request);
-        Task ParkVehicle(string registration, string zoneGeoJSON, int parkingSpaceNumber);
-        Task UnparkVehicle(string zoneGeoJSON, int parkingSpaceNumber);
+        Task ParkVehicle(Guid parkingSpaceGuid, string registration);
+        Task UnparkVehicle(Guid parkingSpaceGuid);
     }
 }
