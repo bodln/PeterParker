@@ -38,6 +38,13 @@ namespace PeterParker.Controllers
             return Ok(zoneDataDTO);
         }
 
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> Delete(ZoneDTO request)
+        {
+            await unitOfWork.ZoneRepository.Delete(request);
+            return Ok("Zone deleted");
+        }
+
         [HttpPost("AddArea")]
         public async Task<IActionResult> AddArea(AddAreaDTO request)
         {

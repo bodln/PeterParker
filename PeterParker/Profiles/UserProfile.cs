@@ -67,7 +67,11 @@ public class UserProfile : Profile
             opt => opt.MapFrom(src => src.Vehicle)
             );
 
-        CreateMap<ParkingAreaDTO, ParkingArea>();
+        CreateMap<ParkingAreaDTO, ParkingArea>()
+            .ForMember(dest =>
+            dest.ParkingSpaces,
+            opt => opt.MapFrom(src => src.ParkingSpaces)
+            ); 
 
         CreateMap<ParkingArea, ParkingAreaDTO>()
             .ForMember(dest =>

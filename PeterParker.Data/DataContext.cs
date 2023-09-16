@@ -1,12 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using PeterParker.Data.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PeterParker.Data;
 
@@ -16,7 +10,7 @@ public class DataContext : IdentityDbContext<User>
     {
 
     }
-    public DataContext(DbContextOptions<DataContext> option) : base (option)
+    public DataContext(DbContextOptions<DataContext> option) : base(option)
     {
 
     }
@@ -28,6 +22,7 @@ public class DataContext : IdentityDbContext<User>
             optionsBuilder.UseSqlServer("server=.;database=PeterParkerDB;trusted_connection=true;");
         }
     }
+
 
     public DbSet<Zone> Zones { get; set; }
     public DbSet<ParkingSpace> ParkingSpaces { get; set; }

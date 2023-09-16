@@ -57,6 +57,20 @@ namespace PeterParker.Infrastructure.Repositories
             return mapper.Map<ZoneDataDTO>(zone);
         }
 
+        public async Task Delete(ZoneDTO zoneDTO)
+        {
+            Zone zone = await GetZoneByGuid(zoneDTO.GUID);
+
+            foreach (ParkingArea parkingArea in zone.ParkingAreas)  
+            {
+                context.ParkingSpaces.RemoveRange(parkingArea.ParkingSpaces);
+            }
+
+            context.ParkingAreas.RemoveRange(zone.ParkingAreas);
+            context.Zones.Remove(zone);
+            context.SaveChanges();
+        }
+
         public async Task<List<ZoneDataDTO>> GetAll()
         {
             List<Zone> zones = await GetAllZones();
