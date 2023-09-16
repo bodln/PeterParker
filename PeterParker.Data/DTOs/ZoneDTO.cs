@@ -9,7 +9,6 @@ namespace PeterParker.Data.DTOs
     public class ZoneDTO
     {
         public string Name { get; set; } = string.Empty;
-        public string Color { get; set; } = string.Empty;
         public string GeoJSON { get; set; } = string.Empty;
     }
 }
