@@ -14,14 +14,17 @@ namespace PeterParker.Infrastructure.Repositories
         private readonly DataContext context;
         private readonly IMapper mapper;
         private readonly ILogger<ZoneRepository> logger;
+        private readonly IParkingAreaRepository parkingAreaRepository;
 
         public ZoneRepository(DataContext context,
             IMapper mapper,
-            ILogger<ZoneRepository> logger) //: base(context)
+            ILogger<ZoneRepository> logger,
+            IParkingAreaRepository parkingAreaRepository) //: base(context)
         {
             this.context = context;
             this.mapper = mapper;
             this.logger = logger;
+            this.parkingAreaRepository = parkingAreaRepository;
         }
 
         public async Task<ZoneDataDTO> Add(ZoneDTO request)
@@ -45,40 +48,50 @@ namespace PeterParker.Infrastructure.Repositories
 
         public async Task<List<ZoneDataDTO>> GetAll()
         {
-            List<Zone> zones = await context.Zones
-                .Include(z => z.ParkingAreas)
-                        .ThenInclude(pa => pa.ParkingSpaces)
-                            .ThenInclude(ps => ps.Vehicle)
-                                .ThenInclude(v => v.User)
-                .ToListAsync();
+            List<Zone> zones = await GetAllZones();
 
             List<ZoneDataDTO> zoneDataDTOs = mapper.Map<List<ZoneDataDTO>>(zones);
 
             return zoneDataDTOs;
         }
 
-        public async Task AddAreaByGuid(Guid zoneGuid, Guid areaGuid)
+        public async Task AddArea(Guid zoneGuid, ParkingAreaDTO parkingAreaDTO)
         {
-            Zone zone = context.Zones.Where(z => z.GUID == zoneGuid)
+            Zone zone = await GetZoneByGuid(zoneGuid);
+
+            ParkingArea parkingArea = await parkingAreaRepository.CreateParkingArea(parkingAreaDTO);
+
+            zone.ParkingAreas.Add(parkingArea);
+            context.SaveChanges();
+        }
+
+        public async Task<List<Zone>> GetAllZones()
+        {
+              List<Zone> zones = await context.Zones
                 .Include(z => z.ParkingAreas)
-                .FirstOrDefault();
+                    .ThenInclude(pa => pa.ParkingSpaces)
+                        .ThenInclude(ps => ps.Vehicle)
+                            .ThenInclude(v => v.User)
+                .ToListAsync();
+
+            return zones;
+        }
+
+        public async Task<Zone> GetZoneByGuid(Guid zoneGuid)
+        {
+            Zone zone = await context.Zones
+                .Include(z => z.ParkingAreas)
+                    .ThenInclude(pa => pa.ParkingSpaces)
+                        .ThenInclude(ps => ps.Vehicle)
+                            .ThenInclude(v => v.User)
+                .FirstOrDefaultAsync(z => z.GUID == zoneGuid);
 
             if (zone == null)
             {
                 throw new NotFoundException($"Zone with GUID: {zoneGuid}, is not found.");
             }
 
-            ParkingArea parkingArea = context.ParkingAreas
-                .Where(pa => pa.GUID == areaGuid)
-                .FirstOrDefault();
-
-            if (parkingArea == null)
-            {
-                throw new NotFoundException($"Parking area with GUID: {areaGuid}, is not found.");
-            }
-
-            zone.ParkingAreas.Add(parkingArea);
-            context.SaveChanges();
+            return zone;
         }
     }
 }

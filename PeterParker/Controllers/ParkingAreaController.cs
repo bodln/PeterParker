@@ -16,13 +16,6 @@ namespace PeterParker.Controllers
             this.unitOfWork = unitOfWork;
         }
 
-        [HttpPost("Add")]
-        public async Task<IActionResult> AddParkingArea(ParkingAreaDTO request)
-        {
-            await unitOfWork.ParkingAreaRepository.AddParkingArea(request);
-            return Ok("Parking area added.");
-        }
-
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAllParkingAreas()
         {

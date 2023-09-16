@@ -24,7 +24,7 @@ namespace PeterParker.Infrastructure.Repositories
             this.logger = logger;
         }
 
-        public async Task AddParkingArea(ParkingAreaDTO request)
+        public async Task<ParkingArea> CreateParkingArea(ParkingAreaDTO request)
         {
             try
             {
@@ -33,12 +33,14 @@ namespace PeterParker.Infrastructure.Repositories
 
                 context.ParkingAreas.Add(parkingArea);
                 context.SaveChanges();
+
+                return parkingArea;
             }
             catch (Exception e)
             {
-                logger.LogError(e.Message);
-                throw;
+                throw new Exception(e.Message);
             }
+
         }
 
         public async Task<List<ParkingAreaDTO>> GetAllParkingAreas()
@@ -55,8 +57,7 @@ namespace PeterParker.Infrastructure.Repositories
             }
             catch (Exception e)
             {
-                logger.LogError(e.Message);
-                throw;
+                throw new Exception(e.Message);
             }
         }
     }

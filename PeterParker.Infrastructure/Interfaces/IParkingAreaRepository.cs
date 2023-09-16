@@ -10,7 +10,7 @@ namespace PeterParker.Infrastructure.Interfaces
 {
     public interface IParkingAreaRepository //: IRepository<ParkingSpace>
     {
-        Task AddParkingArea(ParkingAreaDTO request);
+        Task<ParkingArea> CreateParkingArea(ParkingAreaDTO request);
         Task<List<ParkingAreaDTO>> GetAllParkingAreas();
     }
 }

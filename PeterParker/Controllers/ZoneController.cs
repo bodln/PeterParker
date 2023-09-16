@@ -31,10 +31,10 @@ namespace PeterParker.Controllers
             return Ok(zones);
         }
 
-        [HttpPost("AddByGuid")]
-        public async Task<IActionResult> AddAreaByGuid(Guid zoneGuid, Guid areaGuid)
+        [HttpPost("AddArea")]
+        public async Task<IActionResult> AddArea(AddAreaDTO request)
         {
-            await unitOfWork.ZoneRepository.AddAreaByGuid(zoneGuid, areaGuid);
+            await unitOfWork.ZoneRepository.AddArea(request.ZoneGUID, request.ParkingArea);
             return Ok("Area added.");
         }
     }
