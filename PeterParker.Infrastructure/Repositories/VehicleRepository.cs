@@ -60,11 +60,6 @@ namespace PeterParker.Infrastructure.Repositories
 
             List<VehicleDTO> vehiclesDTO = mapper.Map<List<VehicleDTO>>(vehicles);
 
-            //foreach (var vehicle in vehicles)
-            //{
-            //    vehiclesDTO.Add(mapper.Map<VehicleDTO>(vehicle));
-            //}
-
             return vehiclesDTO;
         }
 
@@ -99,8 +94,18 @@ namespace PeterParker.Infrastructure.Repositories
                 throw new NotFoundException($"The vehicles with the registration: {registration}, could not be found.");
             }
 
+            var result = await context.ParkingSpaces
+                .Include(ps => ps.Vehicle)
+                .FirstOrDefaultAsync(ps => ps.Vehicle == vehicle);
+
+            if (result != null)
+            {
+                throw new VehicleAlreadyParkedException(vehicle.Registration);
+            }
+
             ParkingSpace parkingSpace = await context.ParkingSpaces
                 .Where(ps => ps.GUID == parkingSpaceGuid)
+                .Include(ps => ps.Vehicle)
                 .FirstOrDefaultAsync();
 
             if (parkingSpace.Vehicle == null)

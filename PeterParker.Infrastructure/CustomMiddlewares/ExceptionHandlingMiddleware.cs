@@ -74,6 +74,11 @@ public class ExceptionHandlingMiddleware
                 errorResponse.Message = ex.Message;
                 break;
 
+            case VehicleAlreadyParkedException ex:
+                response.StatusCode = (int)HttpStatusCode.Conflict;
+                errorResponse.Message = ex.Message;
+                break;
+
             case InvalidRefreshToken ex:
                 response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 errorResponse.Message = ex.Message;
@@ -96,6 +101,11 @@ public class ExceptionHandlingMiddleware
 
             case ApplicationException ex:
                 response.StatusCode = (int)HttpStatusCode.BadRequest;
+                errorResponse.Message = ex.Message;
+                break;
+
+            case Exception ex:
+                response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 errorResponse.Message = ex.Message;
                 break;
 
