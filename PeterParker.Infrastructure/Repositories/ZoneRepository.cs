@@ -28,22 +28,57 @@ namespace PeterParker.Infrastructure.Repositories
         {
             if (request.GeoJSON == "")
                 throw new MissingParametersException("Missing parameters for zone creation.");
+
+            if(context.Zones.Where(z => z.Name == request.Name).FirstOrDefault() != null)
+            {
+                throw new DuplicateObjectException("A zone with this name already exists.");
+            }
+
             Zone zone = mapper.Map<Zone>(request);
-            zone.GUID = new Guid();
+            zone.GUID = Guid.NewGuid();
             context.Zones.Add(zone);
-            await context.SaveChangesAsync();
+            context.SaveChanges();
             ZoneDataDTO response = mapper.Map<ZoneDataDTO>(zone);
 
             return response;
         }
 
-        public async Task<List<Zone>> GetAll()
+        public async Task<List<ZoneDataDTO>> GetAll()
         {
-            // make this return ZoneDataDTO
-            return await context.Zones.Include(z => z.ParkingAreas)
+            List<Zone> zones = await context.Zones
+                .Include(z => z.ParkingAreas)
                         .ThenInclude(pa => pa.ParkingSpaces)
                             .ThenInclude(ps => ps.Vehicle)
-                        .ToListAsync(); 
+                                .ThenInclude(v => v.User)
+                .ToListAsync();
+
+            List<ZoneDataDTO> zoneDataDTOs = mapper.Map<List<ZoneDataDTO>>(zones);
+
+            return zoneDataDTOs;
+        }
+
+        public async Task AddAreaByGuid(Guid zoneGuid, Guid areaGuid)
+        {
+            Zone zone = context.Zones.Where(z => z.GUID == zoneGuid)
+                .Include(z => z.ParkingAreas)
+                .FirstOrDefault();
+
+            if (zone == null)
+            {
+                throw new NotFoundException($"Zone with GUID: {zoneGuid}, is not found.");
+            }
+
+            ParkingArea parkingArea = context.ParkingAreas
+                .Where(pa => pa.GUID == areaGuid)
+                .FirstOrDefault();
+
+            if (parkingArea == null)
+            {
+                throw new NotFoundException($"Parking area with GUID: {areaGuid}, is not found.");
+            }
+
+            zone.ParkingAreas.Add(parkingArea);
+            context.SaveChanges();
         }
     }
 }

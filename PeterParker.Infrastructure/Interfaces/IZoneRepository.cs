@@ -11,6 +11,7 @@ namespace PeterParker.Infrastructure.Interfaces
     public interface IZoneRepository //: IRepository<Zone>
     {
         Task<ZoneDataDTO> Add(ZoneDTO request);
-        Task<List<Zone>> GetAll();
+        Task AddAreaByGuid(Guid zoneGuid, Guid areaGuid);
+        Task<List<ZoneDataDTO>> GetAll();
     }
 }

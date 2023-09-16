@@ -27,8 +27,15 @@ namespace PeterParker.Controllers
         [HttpGet("All")]
         public async Task<IActionResult> GetAll()
         {
-            List<Zone> zones = await unitOfWork.ZoneRepository.GetAll(); 
+            List<ZoneDataDTO> zones = await unitOfWork.ZoneRepository.GetAll(); 
             return Ok(zones);
+        }
+
+        [HttpPost("AddByGuid")]
+        public async Task<IActionResult> AddAreaByGuid(Guid zoneGuid, Guid areaGuid)
+        {
+            await unitOfWork.ZoneRepository.AddAreaByGuid(zoneGuid, areaGuid);
+            return Ok("Area added.");
         }
     }
 }
