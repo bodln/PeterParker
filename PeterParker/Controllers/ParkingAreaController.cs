@@ -22,5 +22,12 @@ namespace PeterParker.Controllers
             var result = await unitOfWork.ParkingAreaRepository.GetAllParkingAreas();
             return Ok(result);
         }
+
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> Delete(ParkingAreaDTO request)
+        {
+            await unitOfWork.ParkingAreaRepository.DeleteArea(request);
+            return Ok("Area deleted.");
+        }
     }
 }

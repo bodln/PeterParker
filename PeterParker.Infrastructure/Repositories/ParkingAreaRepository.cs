@@ -26,15 +26,14 @@ namespace PeterParker.Infrastructure.Repositories
 
         public async Task<ParkingArea> CreateParkingArea(ParkingAreaDTO request)
         {
+            string[] parkingAreaTypes = { "garage", "underground", "lot" };
+
+            if (!parkingAreaTypes.Contains(request.Type))
+            {
+                throw new MissingParametersException("Missing parameters for parking area creation.");
+            }
             try
             {
-                string[] parkingAreaTypes = { "garage", "underground", "lot" };
-
-                if (!parkingAreaTypes.Contains(request.Type))
-                {
-                    throw new MissingParametersException("Missing parameters for parking area creation.");
-                }
-
                 ParkingArea parkingArea = mapper.Map<ParkingArea>(request);
                 parkingArea.GUID = Guid.NewGuid();
 
@@ -66,6 +65,18 @@ namespace PeterParker.Infrastructure.Repositories
             {
                 throw new Exception(e.Message);
             }
+        }
+
+        public async Task DeleteArea(ParkingAreaDTO parkingAreaDTO)
+        {
+            ParkingArea parkingArea = await context.ParkingAreas
+                .Where(pa => pa.GUID == parkingAreaDTO.GUID)
+                .Include(pa => pa.ParkingSpaces)
+                .FirstOrDefaultAsync();
+
+            context.ParkingSpaces.RemoveRange(parkingArea.ParkingSpaces);
+            context.ParkingAreas.Remove(parkingArea);
+            context.SaveChanges();
         }
     }
 }
