@@ -55,7 +55,7 @@ public class ExceptionHandlingMiddleware
                 break;
 
             case IncorrectLoginInfoException ex:
-                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 errorResponse.Message = ex.Message;
                 break;
 

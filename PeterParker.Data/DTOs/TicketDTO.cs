@@ -9,6 +9,7 @@ namespace PeterParker.Data.DTOs
     public class TicketDTO
     {
         public string Name { get; set; } = string.Empty; // Combo of zoneid and parkingspaceid or somesuch
+        public Guid GUID { get; set; }
         public bool Paid { get; set; }
         public int ZoneId { get; set; }
         public int ParkingSpaceId { get; set; }

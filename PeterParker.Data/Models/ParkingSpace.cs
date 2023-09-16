@@ -9,7 +9,7 @@ namespace PeterParker.Data.Models;
 public class ParkingSpace
 {
     public int Id { get; set; }
-    public string Street { get; set; } = string.Empty;
+    public Guid GUID { get; set; }
     public Vehicle? Vehicle { get; set; }
     public int Number { get; set; } // in zone
 }

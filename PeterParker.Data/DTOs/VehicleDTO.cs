@@ -14,5 +14,6 @@ namespace PeterParker.Data.DTOs
         [Required]
         [EmailAddress]
         public string UserEmail { get; set; } = string.Empty;
+        public Guid GUID { get; set; }
     }
 }
