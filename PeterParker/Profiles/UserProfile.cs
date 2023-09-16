@@ -15,11 +15,6 @@ public class UserProfile : Profile
     }
     public UserProfile()
     {
-        CreateMap<UserDataDTO, User>()
-            .ForMember(dest =>
-                dest.UserName,
-                opt => opt.MapFrom(src => src.Email));
-        
         CreateMap<User, UserDataDTO>();
 
         CreateMap<UserRegisterDTO, User>()
@@ -39,7 +34,7 @@ public class UserProfile : Profile
                 dest.User,
                 opt => opt.MapFrom(src => context!.Users.First(u => u.Email == src.UserEmail)) // <-- Doesn't work
                 );
-        
+
         CreateMap<Vehicle, VehicleDTO>()
             .ForMember(dest =>
                 dest.UserEmail,
@@ -60,15 +55,24 @@ public class UserProfile : Profile
 
         CreateMap<ZoneDTO, Zone>();
 
-        CreateMap<Zone, ZoneDataDTO>();
+        CreateMap<Zone, ZoneDataDTO>()
+            .ForMember(dest =>
+            dest.ParkingAreas,
+            opt => opt.MapFrom(src => src.ParkingAreas)
+            );
 
-        //CreateMap<ParkingSpace, ParkingSpaceDTO>()
-        //    .ForMember(
-        //        dest =>
-        //        dest.VehicleRegistration, opt => opt.MapFrom(src => src.Vehicle.Registration)
-        //    ).ForMember(
-        //        dest =>
-        //        dest.GarageName, opt => opt.Ignore()
-        //    );
+        CreateMap<ParkingSpace, ParkingSpaceDTO>()
+            .ForMember(dest =>
+            dest.Vehicle,
+            opt => opt.MapFrom(src => src.Vehicle)
+            );
+
+        CreateMap<ParkingAreaDTO, ParkingArea>();
+
+        CreateMap<ParkingArea, ParkingAreaDTO>()
+            .ForMember(dest =>
+            dest.ParkingSpaces,
+            opt => opt.MapFrom(src => src.ParkingSpaces)
+            );
     }
 }

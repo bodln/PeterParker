@@ -47,5 +47,44 @@ namespace PeterParker.Infrastructure.Repositories
 
             return parkingSpaceDTOs;
         }
+
+        public async Task AddParkingSpaceToAreaByGuid(Guid request)
+        {
+            ParkingArea parkingArea = await context.ParkingAreas
+                .Where(pa => pa.GUID == request)
+                .Include(pa => pa.ParkingSpaces)
+                .FirstOrDefaultAsync();
+
+            if (parkingArea == null)
+            {
+                // throw something
+            }
+
+            ParkingSpace parkingSpace = new ParkingSpace();
+            parkingSpace.GUID = Guid.NewGuid();
+            parkingSpace.Number = parkingArea.ParkingSpaces.Count() + 1;
+            parkingArea.ParkingSpaces.Add(parkingSpace);
+
+            context.ParkingSpaces.Add(parkingSpace);
+            context.SaveChanges();
+        }
+
+        public async Task<List<ParkingSpaceDTO>> GetAllByGuid(Guid request)
+        {
+            try
+            {
+                ParkingArea parkingArea = await context.ParkingAreas
+                    .Where(pa => pa.GUID == request)
+                    .Include(pa => pa.ParkingSpaces)
+                        .ThenInclude(ps => ps.Vehicle)
+                    .FirstOrDefaultAsync();
+                return mapper.Map<List<ParkingSpaceDTO>>(parkingArea.ParkingSpaces);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.Message);
+                throw new Exception(e.Message);
+            }
+        }
     }
 }

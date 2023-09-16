@@ -10,6 +10,8 @@ namespace PeterParker.Infrastructure.Interfaces
 {
     public interface IParkingSpaceRepository //: IRepository<ParkingSpace>
     {
+        Task AddParkingSpaceToAreaByGuid(Guid request);
         Task<List<ParkingSpaceDTO>> GetAllByGeoJSON(string request);
+        Task<List<ParkingSpaceDTO>> GetAllByGuid(Guid request);
     }
 }

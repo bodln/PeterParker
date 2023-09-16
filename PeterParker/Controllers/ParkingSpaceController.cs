@@ -22,5 +22,19 @@ namespace PeterParker.Controllers
             var result = await unitOfWork.ParkingSpaceRepository.GetAllByGeoJSON(request);
             return Ok(result);
         }
+
+        [HttpGet("GetAllByGuid")]
+        public async Task<IActionResult> GetAllByGuid(Guid request)
+        {
+            var result = await unitOfWork.ParkingSpaceRepository.GetAllByGuid(request);
+            return Ok(result);
+        }
+
+        [HttpPost("AddOne")]
+        public async Task<IActionResult>AddParkingSpaceToAreaByGuid(Guid request)
+        {
+            await unitOfWork.ParkingSpaceRepository.AddParkingSpaceToAreaByGuid(request);
+            return Ok("Parking sapce added to area.");
+        }
     }
 }
