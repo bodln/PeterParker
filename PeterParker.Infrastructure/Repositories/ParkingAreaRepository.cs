@@ -28,6 +28,13 @@ namespace PeterParker.Infrastructure.Repositories
         {
             try
             {
+                string[] parkingAreaTypes = { "garage", "underground", "lot" };
+
+                if (!parkingAreaTypes.Contains(request.Type))
+                {
+                    throw new MissingParametersException("Missing parameters for parking area creation.");
+                }
+
                 ParkingArea parkingArea = mapper.Map<ParkingArea>(request);
                 parkingArea.GUID = Guid.NewGuid();
 
