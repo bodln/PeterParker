@@ -31,6 +31,13 @@ namespace PeterParker.Controllers
             return Ok(zones);
         }
 
+        [HttpPatch("Update")]
+        public async Task<IActionResult> Update(ZoneDTO request)
+        {
+            ZoneDataDTO zoneDataDTO = await unitOfWork.ZoneRepository.Update(request);
+            return Ok(zoneDataDTO);
+        }
+
         [HttpPost("AddArea")]
         public async Task<IActionResult> AddArea(AddAreaDTO request)
         {

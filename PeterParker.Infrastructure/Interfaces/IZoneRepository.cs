@@ -13,5 +13,6 @@ namespace PeterParker.Infrastructure.Interfaces
         Task<ZoneDataDTO> Add(ZoneDTO request);
         Task AddArea(Guid zoneGuid, ParkingAreaDTO parkingAreaDTO);
         Task<List<ZoneDataDTO>> GetAll();
+        Task<ZoneDataDTO> Update(ZoneDTO zoneDTO);
     }
 }

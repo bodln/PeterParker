@@ -46,6 +46,17 @@ namespace PeterParker.Infrastructure.Repositories
             return response;
         }
 
+        public async Task<ZoneDataDTO> Update(ZoneDTO zoneDTO)
+        {
+            Zone zone = await GetZoneByGuid(zoneDTO.GUID);
+            zone.Name = zoneDTO.Name;
+            zone.GeoJSON = zoneDTO.GeoJSON;
+
+            context.SaveChanges();
+
+            return mapper.Map<ZoneDataDTO>(zone);
+        }
+
         public async Task<List<ZoneDataDTO>> GetAll()
         {
             List<Zone> zones = await GetAllZones();
