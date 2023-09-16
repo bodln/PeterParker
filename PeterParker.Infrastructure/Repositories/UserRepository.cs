@@ -164,11 +164,22 @@ namespace PeterParker.Infrastructure.Repositories
 
         public async Task<AuthTokens> TokenRefresh(string refreshToken)
         {
-            if (refreshToken == null || 
-                context.RefreshTokens
+
+            if (refreshToken == null)
+            {
+                throw new InvalidRefreshToken();
+            }
+
+            var userRefrehToken = context.RefreshTokens
                 .Where(rt => rt.Token == refreshToken)
-                .FirstOrDefault()
-                .Expires < DateTime.Now)
+                .FirstOrDefault();
+
+            if (userRefrehToken == null)
+            {
+                throw new InvalidRefreshToken();
+            }
+
+            if (userRefrehToken.Expires < DateTime.Now)
             {
                 throw new InvalidRefreshToken();
             }
