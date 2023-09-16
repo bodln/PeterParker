@@ -20,7 +20,8 @@ namespace PeterParker.Infrastructure
             ITicketRepository ticketRepository,
             IUserRepository userRepository,
             IZoneRepository zoneRepository,
-            IVehicleRepository vehicleRepository
+            IVehicleRepository vehicleRepository,
+            IParkingAreaRepository parkingAreaRepository
             )
         {
             this.context = context;
@@ -31,6 +32,7 @@ namespace PeterParker.Infrastructure
             UserRepository = userRepository;
             ZoneRepository = zoneRepository;
             VehicleRepository = vehicleRepository;
+            ParkingAreaRepository = parkingAreaRepository;
         }
 
         public IParkingSpaceRepository ParkingSpaceRepository { get; }
@@ -40,6 +42,7 @@ namespace PeterParker.Infrastructure
         public IUserRepository UserRepository { get; }
         public IZoneRepository ZoneRepository { get; }
         public IVehicleRepository VehicleRepository { get; }
+        public IParkingAreaRepository ParkingAreaRepository { get; }
 
         public void SaveChanges()
         {

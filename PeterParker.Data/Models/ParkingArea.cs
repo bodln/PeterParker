@@ -15,6 +15,7 @@ public enum Types
 public class ParkingArea
 {
     public int Id { get; set; }
+    public Guid GUID { get; set; } = Guid.NewGuid();
     [Required]
     public string Name { get; set; } = string.Empty;
     [Required]

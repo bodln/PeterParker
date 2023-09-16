@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PeterParker.Data;
 
@@ -11,9 +12,10 @@ using PeterParker.Data;
 namespace PeterParker.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230915100948_NewParkingSpace")]
+    partial class NewParkingSpace
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,9 +169,6 @@ namespace PeterParker.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("GUID")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("GeoJSON")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -204,9 +203,6 @@ namespace PeterParker.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<Guid>("GUID")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Number")
                         .HasColumnType("int");
 
@@ -235,9 +231,6 @@ namespace PeterParker.Data.Migrations
 
                     b.Property<DateTime>("Expiration")
                         .HasColumnType("datetime2");
-
-                    b.Property<Guid>("GUID")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("TimeOfSale")
                         .HasColumnType("datetime2");
@@ -281,9 +274,6 @@ namespace PeterParker.Data.Migrations
                     b.Property<DateTime>("Expiration")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("GUID")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("VehicleId")
                         .HasColumnType("int");
 
@@ -304,9 +294,6 @@ namespace PeterParker.Data.Migrations
 
                     b.Property<int>("Fine")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("GUID")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("Paid")
                         .HasColumnType("bit");
@@ -428,9 +415,6 @@ namespace PeterParker.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<Guid>("GUID")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Registration")
                         .IsRequired()

@@ -16,6 +16,7 @@ namespace PeterParker.Infrastructure
         public IUserRepository UserRepository { get; }
         public IZoneRepository ZoneRepository { get; }
         public IVehicleRepository VehicleRepository { get; }
+        public IParkingAreaRepository ParkingAreaRepository { get; }
 
         void SaveChanges();
     }

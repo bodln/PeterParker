@@ -27,6 +27,7 @@ builder.Services.AddLogging();
 
 // Dependency Injection for Repository
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IParkingAreaRepository, ParkingAreaRepository>();
 builder.Services.AddScoped<IParkingSpaceRepository, ParkingSpaceRepository>();
 builder.Services.AddScoped<IPassRepository, PassRepository>();
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
