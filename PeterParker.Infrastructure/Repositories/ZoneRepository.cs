@@ -32,13 +32,11 @@ namespace PeterParker.Infrastructure.Repositories
             if (request.GeoJSON == "")
                 throw new MissingParametersException("Missing parameters for zone creation.");
 
-            if(context.Zones.Where(z => z.Name == request.Name).FirstOrDefault() != null)
-            {
-                throw new DuplicateObjectException("A zone with this name already exists.");
-            }
+            int zonesCount = await context.Zones.CountAsync();
 
             Zone zone = mapper.Map<Zone>(request);
             zone.GUID = Guid.NewGuid();
+            zone.Name = $"Zone {zonesCount}";
             context.Zones.Add(zone);
             context.SaveChanges();
             ZoneDataDTO response = mapper.Map<ZoneDataDTO>(zone);
