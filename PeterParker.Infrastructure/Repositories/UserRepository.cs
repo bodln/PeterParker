@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using PeterParker.Data;
 using PeterParker.Data.DTOs;
@@ -25,6 +26,7 @@ namespace PeterParker.Infrastructure.Repositories
     {
         private readonly DataContext context;
         private readonly IConfiguration config;
+        private readonly ILogger<User> logger;
         private readonly IMapper mapper;
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
@@ -33,10 +35,12 @@ namespace PeterParker.Infrastructure.Repositories
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             DataContext context, 
-            IConfiguration config) //: base(context)
+            IConfiguration config,
+            ILogger<User> logger) //: base(context)
         {
             this.context = context;
             this.config = config;
+            this.logger = logger;
             this.mapper = mapper;
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -51,13 +55,18 @@ namespace PeterParker.Infrastructure.Repositories
 
             var user = mapper.Map<User>(request);
 
+            logger.LogInformation("Adding user.");
+
             await userManager.CreateAsync(user, request.Password);
 
             await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "User"));
+
+            logger.LogInformation("User added.");
         }
 
         public async Task<UserDataDTO> ReturnUserData(HttpRequest request)
         {
+            logger.LogInformation("Getting user.");
 
             string token = request.Headers["Authorization"].ToString().Replace("bearer ", "");
 
@@ -69,12 +78,16 @@ namespace PeterParker.Infrastructure.Repositories
             var user = await userManager.FindByEmailAsync(email);
             var userDTO = mapper.Map<UserDataDTO>(user);
 
+            logger.LogInformation("Success.");
+
             return userDTO;
 
         }
 
         public async Task<AuthTokens> LogInUser(UserLoginDTO request)
         {
+            logger.LogInformation("Signing user in.");
+
             var result = await signInManager.PasswordSignInAsync(request.Email,
                     request.Password, isPersistent: false, lockoutOnFailure: false);
 
@@ -84,6 +97,8 @@ namespace PeterParker.Infrastructure.Repositories
 
                 var refreshToken = GenerateRefershToken();
                 await SetRefreshToken(refreshToken, request.Email);
+
+                logger.LogInformation("User signed in.");
 
                 return new AuthTokens
                 {
@@ -265,14 +280,23 @@ namespace PeterParker.Infrastructure.Repositories
 
         public async Task<List<UserDataDTO>> GetAll()
         {
-            var users = await context.Users.ToListAsync();
+            logger.LogInformation("Getting users.");
+
+            var users = await context.Users
+                .OrderBy(u => u.FirstName)
+                .ThenBy(u => u.LastName)
+                .ThenBy(u => u.Email)
+                .ToListAsync();
 
             List<UserDataDTO> usersDTO = mapper.Map<List<UserDataDTO>>(users);
 
             foreach (var userDTO in usersDTO)
             {
                 userDTO.Vehicles = mapper
-                    .Map<List<VehicleDTO>>(await context.Vehicles.Where(v => v.User.Email == userDTO.Email).ToListAsync());
+                    .Map<List<VehicleDTO>>(await context.Vehicles
+                    .Where(v => v.User.Email == userDTO.Email)
+                    .OrderBy(v => v.Registration)
+                    .ToListAsync());
             }
 
             return usersDTO;

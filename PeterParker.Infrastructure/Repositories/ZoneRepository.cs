@@ -39,6 +39,9 @@ namespace PeterParker.Infrastructure.Repositories
             zone.Name = $"Zone {zonesCount}";
             context.Zones.Add(zone);
             context.SaveChanges();
+
+            logger.LogInformation("Zone created.");
+
             ZoneDataDTO response = mapper.Map<ZoneDataDTO>(zone);
 
             return response;
@@ -46,32 +49,51 @@ namespace PeterParker.Infrastructure.Repositories
 
         public async Task<ZoneDataDTO> Update(ZoneDTO zoneDTO)
         {
+            logger.LogInformation("Getting zone.");
+
             Zone zone = await GetZoneByGuid(zoneDTO.GUID);
+
+            logger.LogInformation("Zone found.");
+
             zone.Name = zoneDTO.Name;
             zone.GeoJSON = zoneDTO.GeoJSON;
 
             context.SaveChanges();
+
+            logger.LogInformation("Zone updated.");
 
             return mapper.Map<ZoneDataDTO>(zone);
         }
 
         public async Task Delete(ZoneDTO zoneDTO)
         {
+            logger.LogInformation("Getting zone.");
+
             Zone zone = await GetZoneByGuid(zoneDTO.GUID);
+
+            logger.LogInformation("Zone found.");
 
             foreach (ParkingArea parkingArea in zone.ParkingAreas)  
             {
                 context.ParkingSpaces.RemoveRange(parkingArea.ParkingSpaces);
             }
 
+            logger.LogInformation("Deleting zone.");
+
             context.ParkingAreas.RemoveRange(zone.ParkingAreas);
             context.Zones.Remove(zone);
             context.SaveChanges();
+
+            logger.LogInformation("Deletion successful");
         }
 
         public async Task<List<ZoneDataDTO>> GetAll()
         {
+            logger.LogInformation("Getting all zones.");
+
             List<Zone> zones = await GetAllZones();
+
+            logger.LogInformation("Success.");
 
             List<ZoneDataDTO> zoneDataDTOs = mapper.Map<List<ZoneDataDTO>>(zones);
 
@@ -95,13 +117,21 @@ namespace PeterParker.Infrastructure.Repositories
                     .ThenInclude(pa => pa.ParkingSpaces)
                         .ThenInclude(ps => ps.Vehicle)
                             .ThenInclude(v => v.User)
+                .OrderBy(z => z.Name)
                 .ToListAsync();
+
+            foreach (Zone zone in zones)
+            {
+                zone.ParkingAreas = zone.ParkingAreas.OrderBy(sa => sa.Address).ToList();
+            }
 
             return zones;
         }
 
         public async Task<Zone> GetZoneByGuid(Guid zoneGuid)
         {
+            logger.LogInformation("Searching for zone.");
+
             Zone zone = await context.Zones
                 .Include(z => z.ParkingAreas)
                     .ThenInclude(pa => pa.ParkingSpaces)
@@ -113,6 +143,8 @@ namespace PeterParker.Infrastructure.Repositories
             {
                 throw new NotFoundException($"Zone with GUID: {zoneGuid}, is not found.");
             }
+
+            logger.LogInformation("Zone found.");
 
             return zone;
         }

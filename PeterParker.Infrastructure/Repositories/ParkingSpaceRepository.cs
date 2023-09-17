@@ -43,6 +43,8 @@ namespace PeterParker.Infrastructure.Repositories
 
         public async Task<List<ParkingSpace>> AddParkingSpacesToArea(Guid zoneGuid, ParkingAreaDTO parkingAreaDTO)
         {
+            logger.LogInformation("Getting zone.");
+
             Zone zone = await GetZoneByGuid(zoneGuid);
 
             //ParkingArea parkingArea = await GetParkingAreaByGuid(parkingAreaDTO.GUID);
@@ -67,8 +69,12 @@ namespace PeterParker.Infrastructure.Repositories
                 parkingSpaces.Add(parkingSpace);
             }
 
+            logger.LogInformation("Adding new spaces to database.");
+
             context.ParkingSpaces.AddRange(parkingSpaces);
             context.SaveChanges();
+
+            logger.LogInformation("Parling spaces added.");
 
             return parkingSpaces;
         }
@@ -83,6 +89,7 @@ namespace PeterParker.Infrastructure.Repositories
             }
 
             ParkingSpace parkingSpace = new ParkingSpace();
+
             parkingSpace.GUID = Guid.NewGuid();
             parkingSpace.Number = parkingArea.ParkingSpaces.Count() + 1;
             parkingArea.ParkingSpaces.Add(parkingSpace);
@@ -124,6 +131,11 @@ namespace PeterParker.Infrastructure.Repositories
                 .ThenInclude(pa => pa.ParkingSpaces)
                     .ThenInclude(ps => ps.Vehicle)
             .FirstOrDefaultAsync();
+
+            if (zone == null)
+            {
+                throw new NotFoundException("Zone not found.");
+            }
 
             return zone;
         }

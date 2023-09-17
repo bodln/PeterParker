@@ -23,7 +23,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddLogging();
+builder.Services.AddLogging(config =>
+{
+    config.AddConsole();
+    config.AddDebug();
+});
 
 // Dependency Injection for Repository
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
