@@ -23,7 +23,7 @@ namespace PeterParker.Infrastructure.Repositories
             this.mapper = mapper;
             this.logger = logger;
         }
-
+        //Useless
         public async Task<List<ParkingSpaceDTO>> GetAllByGeoJSON(string request)
         {
             Zone zone = await context.Zones
@@ -38,26 +38,48 @@ namespace PeterParker.Infrastructure.Repositories
 
             List<ParkingSpaceDTO> parkingSpaceDTOs = new List<ParkingSpaceDTO>();
 
-            // Implement getting all ParkingSpaces by Zone, also find out if it should be by area or one and all
-
-            //foreach (ParkingSpace parkingSpace in zone.ParkingAreas)
-            //{
-            //    parkingSpaceDTOs.Add(mapper.Map<ParkingSpaceDTO>(parkingSpace));
-            //}
-
             return parkingSpaceDTOs;
+        }
+
+        public async Task<List<ParkingSpace>> AddParkingSpacesToArea(Guid zoneGuid, ParkingAreaDTO parkingAreaDTO)
+        {
+            Zone zone = await GetZoneByGuid(zoneGuid);
+
+            //ParkingArea parkingArea = await GetParkingAreaByGuid(parkingAreaDTO.GUID);
+
+            int numberOfSpacesInZone = 0;
+
+            foreach (ParkingArea pa in zone.ParkingAreas)
+            {
+                numberOfSpacesInZone += pa.ParkingSpaces.Count();
+            }
+
+            List<ParkingSpace> parkingSpaces = new List<ParkingSpace>();
+
+            for (int i = 0; i < parkingAreaDTO.NumberOfSpaces; i++)
+            {
+                ParkingSpace parkingSpace = new ParkingSpace
+                {
+                    GUID = Guid.NewGuid(),
+                    Number = ++numberOfSpacesInZone
+                };
+
+                parkingSpaces.Add(parkingSpace);
+            }
+
+            context.ParkingSpaces.AddRange(parkingSpaces);
+            context.SaveChanges();
+
+            return parkingSpaces;
         }
 
         public async Task AddParkingSpaceToAreaByGuid(Guid request)
         {
-            ParkingArea parkingArea = await context.ParkingAreas
-                .Where(pa => pa.GUID == request)
-                .Include(pa => pa.ParkingSpaces)
-                .FirstOrDefaultAsync();
+            ParkingArea parkingArea = await GetParkingAreaByGuid(request);
 
             if (parkingArea == null)
             {
-                // throw something
+                throw new NotFoundException("Parking area not found.");
             }
 
             ParkingSpace parkingSpace = new ParkingSpace();
@@ -73,11 +95,7 @@ namespace PeterParker.Infrastructure.Repositories
         {
             try
             {
-                ParkingArea parkingArea = await context.ParkingAreas
-                    .Where(pa => pa.GUID == request)
-                    .Include(pa => pa.ParkingSpaces)
-                        .ThenInclude(ps => ps.Vehicle)
-                    .FirstOrDefaultAsync();
+                ParkingArea parkingArea = await GetParkingAreaByGuid(request);
                 return mapper.Map<List<ParkingSpaceDTO>>(parkingArea.ParkingSpaces);
             }
             catch (Exception e)
@@ -85,6 +103,29 @@ namespace PeterParker.Infrastructure.Repositories
                 logger.LogError(e.Message);
                 throw new Exception(e.Message);
             }
+        }
+
+        public async Task<ParkingArea> GetParkingAreaByGuid(Guid request)
+        {
+            ParkingArea parkingArea = await context.ParkingAreas
+                    .Where(pa => pa.GUID == request)
+                    .Include(pa => pa.ParkingSpaces)
+                        .ThenInclude(ps => ps.Vehicle)
+                    .FirstOrDefaultAsync();
+
+            return parkingArea;
+        }
+
+        public async Task<Zone> GetZoneByGuid(Guid request)
+        {
+            Zone zone = await context.Zones
+            .Where(z => z.GUID == request)
+            .Include(z => z.ParkingAreas)
+                .ThenInclude(pa => pa.ParkingSpaces)
+                    .ThenInclude(ps => ps.Vehicle)
+            .FirstOrDefaultAsync();
+
+            return zone;
         }
     }
 }

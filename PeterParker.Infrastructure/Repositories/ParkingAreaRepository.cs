@@ -14,17 +14,20 @@ namespace PeterParker.Infrastructure.Repositories
         private readonly DataContext context;
         private readonly IMapper mapper;
         private readonly ILogger<ParkingAreaRepository> logger;
+        private readonly IParkingSpaceRepository parkingSpaceRepository;
 
         public ParkingAreaRepository(DataContext context,
             IMapper mapper,
-            ILogger<ParkingAreaRepository> logger)
+            ILogger<ParkingAreaRepository> logger,
+            IParkingSpaceRepository parkingSpaceRepository)
         {
             this.context = context;
             this.mapper = mapper;
             this.logger = logger;
+            this.parkingSpaceRepository = parkingSpaceRepository;
         }
 
-        public async Task<ParkingArea> CreateParkingArea(ParkingAreaDTO request)
+        public async Task<ParkingArea> CreateParkingArea(Guid zoneGuid, ParkingAreaDTO request)
         {
             string[] parkingAreaTypes = { "garage", "underground", "lot" };
 
@@ -38,6 +41,15 @@ namespace PeterParker.Infrastructure.Repositories
                 parkingArea.GUID = Guid.NewGuid();
 
                 context.ParkingAreas.Add(parkingArea);
+                context.SaveChanges();
+
+                request.GUID = parkingArea.GUID;
+
+                List<ParkingSpace> parkingSpaces = await parkingSpaceRepository
+                    .AddParkingSpacesToArea(zoneGuid, request);
+
+                parkingArea.ParkingSpaces = parkingSpaces;
+
                 context.SaveChanges();
 
                 return parkingArea;

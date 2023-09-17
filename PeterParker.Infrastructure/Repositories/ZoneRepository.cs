@@ -82,7 +82,7 @@ namespace PeterParker.Infrastructure.Repositories
         {
             Zone zone = await GetZoneByGuid(zoneGuid);
 
-            ParkingArea parkingArea = await parkingAreaRepository.CreateParkingArea(parkingAreaDTO);
+            ParkingArea parkingArea = await parkingAreaRepository.CreateParkingArea(zoneGuid,parkingAreaDTO);
 
             zone.ParkingAreas.Add(parkingArea);
             context.SaveChanges();

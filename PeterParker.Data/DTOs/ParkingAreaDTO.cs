@@ -15,6 +15,7 @@ namespace PeterParker.Data.DTOs
         public string Address { get; set; } = string.Empty;
         public string GeoJSON { get; set; } = string.Empty;
         public string WorkingHours { get; set; } = string.Empty;
+        public int NumberOfSpaces { get; set; }
         public List<ParkingSpaceDTO> ParkingSpaces { get; set; } = new List<ParkingSpaceDTO>();
     }
 }
