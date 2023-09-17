@@ -70,8 +70,8 @@ public class UserProfile : Profile
         CreateMap<ParkingAreaDTO, ParkingArea>()
             .ForMember(dest =>
             dest.ParkingSpaces,
-            opt => opt.MapFrom(src => src.ParkingSpaces)
-            ); 
+            opt => opt.Ignore()
+            );
 
         CreateMap<ParkingArea, ParkingAreaDTO>()
             .ForMember(dest =>
