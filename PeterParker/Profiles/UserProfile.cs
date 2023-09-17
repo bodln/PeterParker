@@ -41,17 +41,13 @@ public class UserProfile : Profile
                 opt => opt.MapFrom(src => src.User.Email)
                 );
 
-        CreateMap<TicketDTO, Ticket>()
-            .ForMember(dest =>
-                dest.Zone,
-                opt => opt.MapFrom(src => context.Zones.Where(z => z.Id == src.ZoneId))
-                );
-            //.ForMember(dest =>
-            //    dest.ParkingSpace,
-            //    opt => opt.MapFrom(src => context.ParkingSpaces.Where(ps => ps.Id == src.ParkingSpaceId))
-            //    );
+        CreateMap<TicketDTO, Ticket>();
 
         CreateMap<Ticket, TicketDTO>();
+
+        CreateMap<Subscription, SubscriptionDTO>();
+
+        CreateMap<SubscriptionDTO, Subscription>();
 
         CreateMap<ZoneDTO, Zone>();
 

@@ -229,6 +229,7 @@ namespace PeterParker.Infrastructure.Repositories
             if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
                 .Where(x => x.ClaimValue == adminClaim.Value).Count() > 0)
             {
+                logger.LogWarning("User is already an admin.");
                 //can also throw exception
                 return;
             }

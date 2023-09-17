@@ -11,6 +11,5 @@ public class Subscription
     public int Id { get; set; }
     public Guid GUID { get; set; }
     public DateTime Expiration { get; set; }
-    public List<Zone> Zones { get; set; } = new List<Zone>();
-    public Vehicle Vehicle { get; set; }
+    public float Price { get; set; }
 }
