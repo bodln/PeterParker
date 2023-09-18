@@ -9,7 +9,6 @@ namespace PeterParker.Infrastructure
 {
     public interface IUnitOfWork
     {
-        public IGarageRepository GarageRepository { get; }
         public IParkingSpaceRepository ParkingSpaceRepository { get; }
         public IPassRepository PassRepository { get; }
         public ISubscriptionRepository SubscriptionRepository { get; }
@@ -17,6 +16,7 @@ namespace PeterParker.Infrastructure
         public IUserRepository UserRepository { get; }
         public IZoneRepository ZoneRepository { get; }
         public IVehicleRepository VehicleRepository { get; }
+        public IParkingAreaRepository ParkingAreaRepository { get; }
 
         void SaveChanges();
     }

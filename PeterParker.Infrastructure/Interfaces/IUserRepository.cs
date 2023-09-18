@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using PeterParker.Data.DTOs;
 using PeterParker.Data.Models;
 using PeterParker.DTOs;
@@ -13,12 +14,15 @@ namespace PeterParker.Infrastructure.Interfaces
 {
     public interface IUserRepository
     {
-        Task<string> LogInUser(UserDTO request);
-        Task<List<UserDTO>> GetAll();
-        Task RegisterUser(UserDTO request);
-        Task AddAdminRole(string request);
-        Task RemoveAdminRole(string request);
-        Task RemoveInstructorRole(string request);
-        Task AddInstructorRole(string request);
+        Task<AuthTokens> LogInUser(UserLoginDTO request);
+        Task<List<UserDataDTO>> GetAll();
+        Task RegisterUser(UserRegisterDTO request);
+        Task<UserDataDTO> ReturnUserData(HttpRequest request);
+        Task AddAdminRole(UserLoginDTO request);
+        Task RemoveAdminRole(UserLoginDTO request);
+        Task RemoveInspectorRole(UserLoginDTO request);
+        Task AddInspectorRole(UserLoginDTO request);
+        Task<AuthTokens> TokenRefresh(string refreshToken);
+        Task Update(HttpRequest request, UserRegisterDTO registerDTO);
     }
 }

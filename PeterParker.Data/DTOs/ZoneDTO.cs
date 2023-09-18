@@ -8,9 +8,8 @@ namespace PeterParker.Data.DTOs
 {
     public class ZoneDTO
     {
-        public string GeoJSON { get; set; }
-        public int TotalSpaces { get; set; }
-        public int FreeSpaces { get; set; }
-        public List<ParkingSpaceDTO> ParkingSpaces { get; set; } = new List<ParkingSpaceDTO>();
+        public Guid GUID { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string GeoJSON { get; set; } = string.Empty;
     }
 }

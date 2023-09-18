@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PeterParker.Data.Models;
 using PeterParker.DTOs;
 using PeterParker.Infrastructure;
 
@@ -17,22 +18,46 @@ namespace PeterParker.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> RegisterUser(UserDTO request)
+        public async Task<IActionResult> RegisterUser(UserRegisterDTO request)
         {
             await unitOfWork.UserRepository.RegisterUser(request);
             return Ok(request.Email + " Successfully Registered.");
         }
 
         [HttpPost("LogIn")]
-        public async Task<string> LogInUser(UserDTO request)
+        public async Task<AuthTokens> LogInUser(UserLoginDTO request)
         {
-            string token = await unitOfWork.UserRepository.LogInUser(request);
-            return token;
+            AuthTokens tokens = await unitOfWork.UserRepository.LogInUser(request);
+            return tokens;
+        }
+
+        [HttpGet("Data")]
+        [Authorize]
+        public async Task<IActionResult> GetUserData()
+        {
+            UserDataDTO userDTO = await unitOfWork.UserRepository.ReturnUserData(HttpContext.Request);
+            return Ok(userDTO);
+        }
+
+        [HttpPut("Update")]
+        [Authorize]
+        public async Task<IActionResult> UpdateUserData(UserRegisterDTO registerDTO)
+        {
+            await unitOfWork.UserRepository.Update(HttpContext.Request, registerDTO);
+            return Ok();
+        }
+
+        [HttpPost("TokenRefresh")]
+        public async Task<AuthTokens> TokenRefresh()
+        {
+            //string refreshToken = Request.Cookies["refresh-token"];
+            string refreshToken = Request.Headers["X-Pp-Refresh-Token"].ToString();
+            return await unitOfWork.UserRepository.TokenRefresh(refreshToken);
         }
 
         [HttpPost("MakeAdmin")]
         //[Authorize("AdminOnly")]
-        public async Task<IActionResult> AddAdminRole(string request)
+        public async Task<IActionResult> AddAdminRole(UserLoginDTO request)
         {
             await unitOfWork.UserRepository.AddAdminRole(request);
             return Ok("User Successfully Made Admin");
@@ -40,31 +65,31 @@ namespace PeterParker.Controllers
 
         [HttpPost("RevokeAdmin")]
         [Authorize("AdminOnly")]
-        public async Task<IActionResult> RemoveAdminRole(string request)
+        public async Task<IActionResult> RemoveAdminRole(UserLoginDTO request)
         {
             await unitOfWork.UserRepository.RemoveAdminRole(request);
             return Ok("User Successfully Revoked as Admin");
 
         }
 
-        [HttpPost("MakeInstructor")]
+        [HttpPost("MakeInspector")]
         [Authorize("AdminOnly")]
-        public async Task<IActionResult> AddInstructorRole(string request)
+        public async Task<IActionResult> AddInspectorRole(UserLoginDTO request)
         {
-            await unitOfWork.UserRepository.AddInstructorRole(request);
-            return Ok("User Successfully Made Instructor");
+            await unitOfWork.UserRepository.AddInspectorRole(request);
+            return Ok("User Successfully Made Inspector");
         }
 
-        [HttpPost("RevokeInstructor")]
+        [HttpPost("RevokeInspector  ")]
         [Authorize("AdminOnly")]
-        public async Task<IActionResult> RemoveInstructorRole(string request)
+        public async Task<IActionResult> RemoveInspectorRole(UserLoginDTO request)
         {
-            await unitOfWork.UserRepository.RemoveInstructorRole(request);
-            return Ok("User Successfully Revoked as Instructor");
+            await unitOfWork.UserRepository.RemoveInspectorRole(request);
+            return Ok("User Successfully Revoked as Inspector");
         }
 
         [HttpGet("GetAllUsersWithVehicles")]
-        public async Task<List<UserDTO>> GetAll()
+        public async Task<List<UserDataDTO>> GetAll()
         {
             var result = await unitOfWork.UserRepository.GetAll();
             return result;

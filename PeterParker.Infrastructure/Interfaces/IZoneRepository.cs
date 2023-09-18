@@ -10,7 +10,10 @@ namespace PeterParker.Infrastructure.Interfaces
 {
     public interface IZoneRepository //: IRepository<Zone>
     {
-        Task Add(ZoneDTO request);
-        Task<List<Zone>> GetAll();
+        Task<ZoneDataDTO> Add(ZoneDTO request);
+        Task AddArea(Guid zoneGuid, ParkingAreaDTO parkingAreaDTO);
+        Task<List<ZoneDataDTO>> GetAll();
+        Task<ZoneDataDTO> Update(ZoneDTO zoneDTO);
+        Task Delete(ZoneDTO zoneDTO);
     }
 }

@@ -13,6 +13,8 @@ namespace PeterParker.Data.DTOs
         public string Registration { get; set; } = string.Empty;
         [Required]
         [EmailAddress]
+        public Guid ParkingSpaceGuid { get; set; }
         public string UserEmail { get; set; } = string.Empty;
+        public Guid GUID { get; set; }
     }
 }

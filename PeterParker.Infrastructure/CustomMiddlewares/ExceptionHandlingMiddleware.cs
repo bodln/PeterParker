@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System.Data.Entity.Infrastructure;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using PeterParker.Infrastructure;
 using PeterParker.Infrastructure.Exceptions;
+using System.Data.Entity.Infrastructure;
 using System.Net;
 using System.Text.Json;
-using Microsoft.Data.SqlClient;
 //using ExceptionHandling.Models.Responses;
 
 namespace ExceptionHandling.CustomMiddlewares;
@@ -54,8 +54,18 @@ public class ExceptionHandlingMiddleware
                 errorResponse.Message = ex.Message;
                 break;
 
-            case IncorrectLoginInfoException ex:
+            case BadUserDataException ex:
                 response.StatusCode = (int)HttpStatusCode.BadRequest;
+                errorResponse.Message = ex.Message;
+                break;
+
+            case IncorrectLoginInfoException ex:
+                response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                errorResponse.Message = ex.Message;
+                break;
+
+            case EmailTakenException ex:
+                response.StatusCode = (int)HttpStatusCode.Conflict;
                 errorResponse.Message = ex.Message;
                 break;
 
@@ -66,6 +76,16 @@ public class ExceptionHandlingMiddleware
 
             case ParkingSpaceTakenException ex:
                 response.StatusCode = (int)HttpStatusCode.Conflict;
+                errorResponse.Message = ex.Message;
+                break;
+
+            case VehicleAlreadyParkedException ex:
+                response.StatusCode = (int)HttpStatusCode.Conflict;
+                errorResponse.Message = ex.Message;
+                break;
+
+            case InvalidRefreshToken ex:
+                response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 errorResponse.Message = ex.Message;
                 break;
 
@@ -86,6 +106,11 @@ public class ExceptionHandlingMiddleware
 
             case ApplicationException ex:
                 response.StatusCode = (int)HttpStatusCode.BadRequest;
+                errorResponse.Message = ex.Message;
+                break;
+
+            case Exception ex:
+                response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 errorResponse.Message = ex.Message;
                 break;
 

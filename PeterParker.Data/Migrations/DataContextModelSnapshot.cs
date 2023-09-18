@@ -155,7 +155,7 @@ namespace PeterParker.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("PeterParker.Data.Models.Garage", b =>
+            modelBuilder.Entity("PeterParker.Data.Models.ParkingArea", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -167,15 +167,16 @@ namespace PeterParker.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("FreeSpaces")
-                        .HasColumnType("int");
+                    b.Property<Guid>("GUID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("GeoJSON")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TotalSpaces")
-                        .HasColumnType("int");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -185,14 +186,14 @@ namespace PeterParker.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ZoneId")
+                    b.Property<int?>("ZoneId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ZoneId");
 
-                    b.ToTable("Garage", (string)null);
+                    b.ToTable("ParkingAreas");
                 });
 
             modelBuilder.Entity("PeterParker.Data.Models.ParkingSpace", b =>
@@ -203,31 +204,25 @@ namespace PeterParker.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("GarageId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("GUID")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Number")
                         .HasColumnType("int");
 
-                    b.Property<string>("Street")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("ParkingAreaId")
+                        .HasColumnType("int");
 
                     b.Property<int?>("VehicleId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ZoneId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("GarageId");
+                    b.HasIndex("ParkingAreaId");
 
                     b.HasIndex("VehicleId");
 
-                    b.HasIndex("ZoneId");
-
-                    b.ToTable("ParkingSpaces", (string)null);
+                    b.ToTable("ParkingSpaces");
                 });
 
             modelBuilder.Entity("PeterParker.Data.Models.Pass", b =>
@@ -241,12 +236,38 @@ namespace PeterParker.Data.Migrations
                     b.Property<DateTime>("Expiration")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("GUID")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("TimeOfSale")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Passes", (string)null);
+                    b.ToTable("Passes");
+                });
+
+            modelBuilder.Entity("PeterParker.Data.Models.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("PeterParker.Data.Models.Subscription", b =>
@@ -260,14 +281,15 @@ namespace PeterParker.Data.Migrations
                     b.Property<DateTime>("Expiration")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("VehicleId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("GUID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<float>("Price")
+                        .HasColumnType("real");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("VehicleId");
-
-                    b.ToTable("Subscriptions", (string)null);
+                    b.ToTable("Subscriptions");
                 });
 
             modelBuilder.Entity("PeterParker.Data.Models.Ticket", b =>
@@ -281,27 +303,30 @@ namespace PeterParker.Data.Migrations
                     b.Property<int>("Fine")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("GUID")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool>("Paid")
                         .HasColumnType("bit");
 
-                    b.Property<int>("ParkingSpaceId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ParkingSpaceGuid")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("ZoneId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ZoneGuid")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParkingSpaceId");
-
                     b.HasIndex("UserId");
 
-                    b.HasIndex("ZoneId");
-
-                    b.ToTable("Tickets", (string)null);
+                    b.ToTable("Tickets");
                 });
 
             modelBuilder.Entity("PeterParker.Data.Models.User", b =>
@@ -361,6 +386,9 @@ namespace PeterParker.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("RefreshTokenId")
+                        .HasColumnType("int");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -386,6 +414,8 @@ namespace PeterParker.Data.Migrations
 
                     b.HasIndex("PassId");
 
+                    b.HasIndex("RefreshTokenId");
+
                     b.HasIndex("SubscriptionId");
 
                     b.ToTable("AspNetUsers", (string)null);
@@ -399,6 +429,9 @@ namespace PeterParker.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<Guid>("GUID")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Registration")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -411,7 +444,7 @@ namespace PeterParker.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Vehicles", (string)null);
+                    b.ToTable("Vehicles");
                 });
 
             modelBuilder.Entity("PeterParker.Data.Models.Zone", b =>
@@ -422,29 +455,25 @@ namespace PeterParker.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("FreeSpaces")
-                        .HasColumnType("int");
+                    b.Property<Guid>("GUID")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("GeoJSON")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("PassId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SubscriptionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TotalSpaces")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("PassId");
 
-                    b.HasIndex("SubscriptionId");
-
-                    b.ToTable("Zones", (string)null);
+                    b.ToTable("Zones");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -498,68 +527,31 @@ namespace PeterParker.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PeterParker.Data.Models.Garage", b =>
+            modelBuilder.Entity("PeterParker.Data.Models.ParkingArea", b =>
                 {
-                    b.HasOne("PeterParker.Data.Models.Zone", "Zone")
-                        .WithMany()
-                        .HasForeignKey("ZoneId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Zone");
+                    b.HasOne("PeterParker.Data.Models.Zone", null)
+                        .WithMany("ParkingAreas")
+                        .HasForeignKey("ZoneId");
                 });
 
             modelBuilder.Entity("PeterParker.Data.Models.ParkingSpace", b =>
                 {
-                    b.HasOne("PeterParker.Data.Models.Garage", "Garage")
-                        .WithMany()
-                        .HasForeignKey("GarageId");
+                    b.HasOne("PeterParker.Data.Models.ParkingArea", null)
+                        .WithMany("ParkingSpaces")
+                        .HasForeignKey("ParkingAreaId");
 
                     b.HasOne("PeterParker.Data.Models.Vehicle", "Vehicle")
                         .WithMany()
                         .HasForeignKey("VehicleId");
-
-                    b.HasOne("PeterParker.Data.Models.Zone", null)
-                        .WithMany("ParkingSpaces")
-                        .HasForeignKey("ZoneId");
-
-                    b.Navigation("Garage");
-
-                    b.Navigation("Vehicle");
-                });
-
-            modelBuilder.Entity("PeterParker.Data.Models.Subscription", b =>
-                {
-                    b.HasOne("PeterParker.Data.Models.Vehicle", "Vehicle")
-                        .WithMany()
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("Vehicle");
                 });
 
             modelBuilder.Entity("PeterParker.Data.Models.Ticket", b =>
                 {
-                    b.HasOne("PeterParker.Data.Models.ParkingSpace", "ParkingSpace")
-                        .WithMany()
-                        .HasForeignKey("ParkingSpaceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("PeterParker.Data.Models.User", null)
                         .WithMany("Tickets")
                         .HasForeignKey("UserId");
-
-                    b.HasOne("PeterParker.Data.Models.Zone", "Zone")
-                        .WithMany()
-                        .HasForeignKey("ZoneId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ParkingSpace");
-
-                    b.Navigation("Zone");
                 });
 
             modelBuilder.Entity("PeterParker.Data.Models.User", b =>
@@ -568,11 +560,17 @@ namespace PeterParker.Data.Migrations
                         .WithMany()
                         .HasForeignKey("PassId");
 
+                    b.HasOne("PeterParker.Data.Models.RefreshToken", "RefreshToken")
+                        .WithMany()
+                        .HasForeignKey("RefreshTokenId");
+
                     b.HasOne("PeterParker.Data.Models.Subscription", "Subscription")
                         .WithMany()
                         .HasForeignKey("SubscriptionId");
 
                     b.Navigation("Pass");
+
+                    b.Navigation("RefreshToken");
 
                     b.Navigation("Subscription");
                 });
@@ -593,18 +591,14 @@ namespace PeterParker.Data.Migrations
                     b.HasOne("PeterParker.Data.Models.Pass", null)
                         .WithMany("Zones")
                         .HasForeignKey("PassId");
+                });
 
-                    b.HasOne("PeterParker.Data.Models.Subscription", null)
-                        .WithMany("Zones")
-                        .HasForeignKey("SubscriptionId");
+            modelBuilder.Entity("PeterParker.Data.Models.ParkingArea", b =>
+                {
+                    b.Navigation("ParkingSpaces");
                 });
 
             modelBuilder.Entity("PeterParker.Data.Models.Pass", b =>
-                {
-                    b.Navigation("Zones");
-                });
-
-            modelBuilder.Entity("PeterParker.Data.Models.Subscription", b =>
                 {
                     b.Navigation("Zones");
                 });
@@ -616,7 +610,7 @@ namespace PeterParker.Data.Migrations
 
             modelBuilder.Entity("PeterParker.Data.Models.Zone", b =>
                 {
-                    b.Navigation("ParkingSpaces");
+                    b.Navigation("ParkingAreas");
                 });
 #pragma warning restore 612, 618
         }

@@ -9,10 +9,10 @@ namespace PeterParker.Data.Models;
 public class Ticket
 {
     public int Id { get; set; }
-    // The offending Vehicle can be derived from the ParkingSpace (TableOptimisationV1)
-    //public Vehicle Vehicle { get; set; } 
+    public Guid GUID { get; set; }
     public bool Paid { get; set; } = false;
-    public Zone Zone { get; set; }
-    public int ParkingSpaceId { get; set; }
+    public Guid ZoneGuid { get; set; }
+    public Guid ParkingSpaceGuid { get; set; }
     public int Fine { get; set; } // in RSD
+    public string Reason { get; set; }
 }

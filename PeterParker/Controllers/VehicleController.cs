@@ -23,30 +23,30 @@ namespace PeterParker.Controllers
         }
 
         [HttpDelete("DeleteVehicle")]
-        public async Task<IActionResult> DeleteVehicle(string request)
+        public async Task<IActionResult> DeleteVehicle(VehicleDTO request)
         {
             await unitOfWork.VehicleRepository.DeleteVehicle(request);
             return Ok("Vehicle successfully deleted.");
         }
 
         [HttpGet("GetAllVehiclesByEmail")]
-        public async Task<IActionResult> GetAllVehiclesByEmail(string request)
+        public async Task<IActionResult> GetAllVehiclesByEmail(HttpRequest request)
         {
             var result = await unitOfWork.VehicleRepository.GetAllVehiclesForUserByEmail(request);
             return Ok(result);
         }
 
         [HttpPost("ParkVehicle")]
-        public async Task<IActionResult> ParkVehicle(string registration, string zoneGeoJSON, int parkingSpaceNumber)
+        public async Task<IActionResult> ParkVehicle(Guid parkingSpace, VehicleDTO vehicle)
         {
-            await unitOfWork.VehicleRepository.ParkVehicle(registration, zoneGeoJSON, parkingSpaceNumber);
+            await unitOfWork.VehicleRepository.ParkVehicle(parkingSpace, vehicle);
             return Ok("Successfully parked!");
         }
 
         [HttpPost("UnparkVehicle")]
-        public async Task<IActionResult> UnparkVehicle(string zoneGeoJSON, int parkingSpaceNumber)
+        public async Task<IActionResult> UnparkVehicle(Guid request)
         {
-            await unitOfWork.VehicleRepository.UnparkVehicle(zoneGeoJSON, parkingSpaceNumber);
+            await unitOfWork.VehicleRepository.UnparkVehicle(request);
             return Ok("Successfully unparked!");
         }
     }

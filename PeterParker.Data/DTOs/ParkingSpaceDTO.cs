@@ -8,9 +8,8 @@ namespace PeterParker.Data.DTOs
 {
     public class ParkingSpaceDTO
     {
-        public string Street { get; set; } = string.Empty;
-        public string VehicleRegistration { get; set; } = string.Empty;
-        public string GarageName { get; set; } = string.Empty;
+        public Guid GUID { get; set; }
+        public VehicleDTO Vehicle { get; set; } = null;
         public int Number { get; set; }
     }
 }

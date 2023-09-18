@@ -14,18 +14,17 @@ namespace PeterParker.Infrastructure
 
         public UnitOfWork(
             DataContext context,
-            IGarageRepository garageRepository,
             IParkingSpaceRepository parkingSpaceRepository,
             IPassRepository passRepository,
             ISubscriptionRepository subscriptionRepository,
             ITicketRepository ticketRepository,
             IUserRepository userRepository,
             IZoneRepository zoneRepository,
-            IVehicleRepository vehicleRepository
+            IVehicleRepository vehicleRepository,
+            IParkingAreaRepository parkingAreaRepository
             )
         {
             this.context = context;
-            GarageRepository = garageRepository;
             ParkingSpaceRepository = parkingSpaceRepository;
             PassRepository = passRepository;
             SubscriptionRepository = subscriptionRepository;
@@ -33,9 +32,9 @@ namespace PeterParker.Infrastructure
             UserRepository = userRepository;
             ZoneRepository = zoneRepository;
             VehicleRepository = vehicleRepository;
+            ParkingAreaRepository = parkingAreaRepository;
         }
 
-        public IGarageRepository GarageRepository { get; }
         public IParkingSpaceRepository ParkingSpaceRepository { get; }
         public IPassRepository PassRepository { get; }
         public ISubscriptionRepository SubscriptionRepository { get; }
@@ -43,6 +42,7 @@ namespace PeterParker.Infrastructure
         public IUserRepository UserRepository { get; }
         public IZoneRepository ZoneRepository { get; }
         public IVehicleRepository VehicleRepository { get; }
+        public IParkingAreaRepository ParkingAreaRepository { get; }
 
         public void SaveChanges()
         {

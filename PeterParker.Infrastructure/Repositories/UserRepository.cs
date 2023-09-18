@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using PeterParker.Data;
 using PeterParker.Data.DTOs;
@@ -14,6 +16,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,6 +26,7 @@ namespace PeterParker.Infrastructure.Repositories
     {
         private readonly DataContext context;
         private readonly IConfiguration config;
+        private readonly ILogger<User> logger;
         private readonly IMapper mapper;
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
@@ -31,32 +35,115 @@ namespace PeterParker.Infrastructure.Repositories
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             DataContext context, 
-            IConfiguration config) //: base(context)
+            IConfiguration config,
+            ILogger<User> logger) //: base(context)
         {
             this.context = context;
             this.config = config;
+            this.logger = logger;
             this.mapper = mapper;
             this.userManager = userManager;
             this.signInManager = signInManager;
         }
         //Keep in mind the return types
-        public async Task RegisterUser(UserDTO request)
+        public async Task RegisterUser(UserRegisterDTO request)
         {
+            if (await userManager.FindByEmailAsync(request.Email) != null)
+            {
+                throw new EmailTakenException($"Account with the email address: {request.Email}, already exists.");
+            }
+
+            ValidateUser(request);
+            
             var user = mapper.Map<User>(request);
+
+            logger.LogInformation("Adding user.");
 
             var result = await userManager.CreateAsync(user, request.Password);
 
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors;
+                string error = string.Empty;
+                foreach (var e in errors)
+                {
+                    error += e.Description + " ";
+                }
+                
+                throw new BadUserDataException(error);
+            }
+
             await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "User"));
+
+            logger.LogInformation("User added.");
         }
 
-        public async Task<string> LogInUser(UserDTO request)
+        private void ValidateUser(UserRegisterDTO user)
         {
+            if (string.IsNullOrWhiteSpace(user.FirstName) ||
+            string.IsNullOrWhiteSpace(user.LastName))
+            {
+                throw new BadUserDataException("No field should be empty.");
+            }
+
+            if (user.FirstName.Length > 12 || user.FirstName.Length < 2)
+            {
+                throw new BadUserDataException("First name cannot be longer than 12 characters or shorter than 2.");
+            }
+
+            if (user.LastName.Length > 20 || user.LastName.Length < 2)
+            {
+                throw new BadUserDataException("Last name cannot be longer than 20 characters or shorter than 2.");
+            }
+        }
+
+        public async Task<UserDataDTO> ReturnUserData(HttpRequest request)
+        {
+            logger.LogInformation("Getting user.");
+
+            string token = request.Headers["Authorization"].ToString().Replace("bearer ", "");
+
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            JwtSecurityToken jwtToken = handler.ReadToken(token) as JwtSecurityToken;
+
+            string email = jwtToken.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
+
+            User user = await context.Users
+                .Where(u => u.Email == email)
+                .Include(u => u.Subscription)
+                .Include(u => u.Tickets)
+                .Include(u => u.Pass)
+                .FirstOrDefaultAsync();
+
+            var userDTO = mapper.Map<UserDataDTO>(user);
+
+            logger.LogInformation("Success.");
+
+            return userDTO;
+
+        }
+
+        public async Task<AuthTokens> LogInUser(UserLoginDTO request)
+        {
+            logger.LogInformation("Signing user in.");
+
             var result = await signInManager.PasswordSignInAsync(request.Email,
                     request.Password, isPersistent: false, lockoutOnFailure: false);
 
             if (result.Succeeded)
             {
-                return await BuildTokenAsync(request);
+                string token = await BuildTokenAsync(request.Email);
+
+                var refreshToken = GenerateRefreshToken();
+                await SetRefreshToken(refreshToken, request.Email);
+
+                logger.LogInformation("User signed in.");
+
+                return new AuthTokens
+                {
+                    Token = token,
+                    RefreshToken = refreshToken.Token
+                };
             }
             else
             {
@@ -64,15 +151,108 @@ namespace PeterParker.Infrastructure.Repositories
             }
         }
 
-        private async Task<string> BuildTokenAsync(UserDTO request)
+        public async Task Update(HttpRequest request, UserRegisterDTO userRegisterDTO)
+        {
+            ValidateUser(userRegisterDTO);
+
+            logger.LogInformation("Getting user.");
+
+            string token = request.Headers["Authorization"].ToString().Replace("bearer ", "");
+
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            JwtSecurityToken jwtToken = handler.ReadToken(token) as JwtSecurityToken;
+
+            string email = jwtToken.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
+
+            User user = await context.Users
+                .Where(u => u.Email == email)
+                .Include(u => u.Subscription)
+                .Include(u => u.Tickets)
+                .Include(u => u.Pass)
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                throw new NotFoundException("User not found.");
+            }
+
+            logger.LogInformation("User found.");
+
+            user.FirstName = userRegisterDTO.FirstName;
+            user.LastName = userRegisterDTO.LastName;
+            user.HomeAddress = userRegisterDTO.HomeAddress;
+
+
+
+            if (userRegisterDTO.Password != null)
+            {
+                string resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+                var result = await userManager.ResetPasswordAsync(user, resetToken, userRegisterDTO.Password);
+
+                if (!result.Succeeded)
+                {
+                    var errors = result.Errors;
+                    string error = string.Empty;
+                    foreach (var e in errors)
+                    {
+                        error += e.Description + " ";
+                    }
+
+                    throw new BadUserDataException(error);
+                }
+            }
+            else
+            {
+                throw new BadUserDataException("No password has been recieved.");
+            }
+
+            context.SaveChanges();
+
+            logger.LogInformation("Success.");
+        }
+
+        private RefreshToken GenerateRefreshToken()
+        {
+            var refreshToken = new RefreshToken
+            {
+                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+                Expires = DateTime.Now.AddDays(7),
+                Created = DateTime.Now
+            };
+
+            return refreshToken;
+        }
+
+        private async Task SetRefreshToken(RefreshToken newRefreshToken, string email)
+        {
+            //User user = await userManager.FindByEmailAsync(email);
+            User user = context.Users
+                .Include(u => u.RefreshToken)
+                .Where(u => u.Email == email)
+                .FirstOrDefault();
+
+            if (user.RefreshToken != null)
+            {
+                context.RefreshTokens.Remove(user.RefreshToken);
+            }
+            
+            //context.RefreshTokens.Remove()
+            context.RefreshTokens.Add(newRefreshToken);
+            await context.SaveChangesAsync();
+
+            user.RefreshToken = newRefreshToken; 
+            await userManager.UpdateAsync(user);
+        }
+
+        private async Task<string> BuildTokenAsync(string userEmail)
         {
             var claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.Email, request.Email),
+                new Claim(ClaimTypes.Email, userEmail),
                 new Claim(ClaimTypes.Role, "User"),
             };
 
-            var user = await userManager.FindByEmailAsync(request.Email);
+            var user = await userManager.FindByEmailAsync(userEmail);
             var claimList = await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync();
 
             foreach (var claim in claimList)
@@ -86,11 +266,9 @@ namespace PeterParker.Infrastructure.Repositories
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSection("Jwt:Key").Value));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
-            var expiration = DateTime.UtcNow.AddDays(1);
-
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.Now.AddSeconds(30),
                 issuer: config.GetSection("Jwt:Issuer").Value,
                 audience: config.GetSection("Jwt:Audience").Value,
                 signingCredentials: creds);
@@ -98,14 +276,59 @@ namespace PeterParker.Infrastructure.Repositories
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public async Task AddAdminRole(string request)
+        public async Task<AuthTokens> TokenRefresh(string refreshToken)
         {
-            var user = await userManager.FindByEmailAsync(request);
+
+            if (refreshToken == null)
+            {
+                throw new InvalidRefreshToken();
+            }
+
+            var userRefrehToken = context.RefreshTokens
+                .Where(rt => rt.Token == refreshToken)
+                .FirstOrDefault();
+
+            if (userRefrehToken == null)
+            {
+                throw new InvalidRefreshToken();
+            }
+
+            if (userRefrehToken.Expires < DateTime.Now)
+            {
+                throw new InvalidRefreshToken();
+            }
+
+            User user = await context.Users
+                .Include(u => u.RefreshToken)
+                .Where(u => u.RefreshToken.Token.Equals(refreshToken))
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                throw new NotFoundException("User not found.");
+            }
+            // Make a seperate create token function or put it in User class
+            string token = await BuildTokenAsync(user.Email);
+
+            var newRefreshToken = GenerateRefreshToken();
+            await SetRefreshToken(newRefreshToken, user.Email);
+
+            return new AuthTokens
+            {
+                Token = token,
+                RefreshToken = newRefreshToken.Token
+            };
+        }
+
+        public async Task AddAdminRole(UserLoginDTO request)
+        {
+            var user = await userManager.FindByEmailAsync(request.Email);
             Claim adminClaim = new Claim(ClaimTypes.Role, "Admin");
 
             if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
                 .Where(x => x.ClaimValue == adminClaim.Value).Count() > 0)
             {
+                logger.LogWarning("User is already an admin.");
                 //can also throw exception
                 return;
             }
@@ -113,9 +336,9 @@ namespace PeterParker.Infrastructure.Repositories
             await userManager.AddClaimAsync(user, adminClaim);
         }
 
-        public async Task RemoveAdminRole(string request)
+        public async Task RemoveAdminRole(UserLoginDTO request)
         {
-            var user = await userManager.FindByEmailAsync(request);
+            var user = await userManager.FindByEmailAsync(request.Email);
             Claim adminClaim = new Claim(ClaimTypes.Role, "Admin");
 
             if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
@@ -126,10 +349,10 @@ namespace PeterParker.Infrastructure.Repositories
             await userManager.RemoveClaimAsync(user, adminClaim);
         }
 
-        public async Task AddInstructorRole(string request)
+        public async Task AddInspectorRole(UserLoginDTO request)
         {
-            var user = await userManager.FindByEmailAsync(request);
-            Claim instsructorClaim = new Claim(ClaimTypes.Role, "Instructor");
+            var user = await userManager.FindByEmailAsync(request.Email);
+            Claim instsructorClaim = new Claim(ClaimTypes.Role, "Inspector");
 
             if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
                 .Where(x => x.ClaimValue == instsructorClaim.Value).Count() > 0)
@@ -140,11 +363,11 @@ namespace PeterParker.Infrastructure.Repositories
             await userManager.AddClaimAsync(user, instsructorClaim);
         }
 
-        public async Task RemoveInstructorRole(string request)
+        public async Task RemoveInspectorRole(UserLoginDTO request)
         {
-            var user = await userManager.FindByEmailAsync(request);
+            var user = await userManager.FindByEmailAsync(request.Email);
 
-            Claim instsructorClaim = new Claim(ClaimTypes.Role, "Instructor");
+            Claim instsructorClaim = new Claim(ClaimTypes.Role, "Inspector");
 
             if ((await context.UserClaims.Where(x => x.UserId == user.Id).ToListAsync())
                 .Where(x => x.ClaimValue == instsructorClaim.Value).Count() == 0)
@@ -155,22 +378,25 @@ namespace PeterParker.Infrastructure.Repositories
             await userManager.RemoveClaimAsync(user, instsructorClaim);
         }
 
-        public async Task<List<UserDTO>> GetAll()
+        public async Task<List<UserDataDTO>> GetAll()
         {
-            var users = await context.Users.ToListAsync();
+            logger.LogInformation("Getting users.");
 
-            List<UserDTO> usersDTO = new List<UserDTO>();
+            var users = await context.Users
+                .OrderBy(u => u.FirstName)
+                .ThenBy(u => u.LastName)
+                .ThenBy(u => u.Email)
+                .ToListAsync();
 
-            foreach (var user in users)
+            List<UserDataDTO> usersDTO = mapper.Map<List<UserDataDTO>>(users);
+
+            foreach (var userDTO in usersDTO)
             {
-                UserDTO userDTO = mapper.Map<UserDTO>(user);
-                List<VehicleDTO> vehiclesDTO = new List<VehicleDTO>();
-                foreach (Vehicle vehicle in await context.Vehicles.Where(v => v.User == user).ToListAsync())
-                {
-                    vehiclesDTO.Add(mapper.Map<VehicleDTO>(vehicle));
-                }
-                userDTO.Vehicles = vehiclesDTO;
-                usersDTO.Add(userDTO);
+                userDTO.Vehicles = mapper
+                    .Map<List<VehicleDTO>>(await context.Vehicles
+                    .Where(v => v.User.Email == userDTO.Email)
+                    .OrderBy(v => v.Registration)
+                    .ToListAsync());
             }
 
             return usersDTO;

@@ -1,12 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using PeterParker.Data.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PeterParker.Data;
 
@@ -16,7 +10,7 @@ public class DataContext : IdentityDbContext<User>
     {
 
     }
-    public DataContext(DbContextOptions<DataContext> option) : base (option)
+    public DataContext(DbContextOptions<DataContext> option) : base(option)
     {
 
     }
@@ -29,12 +23,13 @@ public class DataContext : IdentityDbContext<User>
         }
     }
 
+
     public DbSet<Zone> Zones { get; set; }
     public DbSet<ParkingSpace> ParkingSpaces { get; set; }
-    public DbSet<Garage> Garage { get; set; }
+    public DbSet<ParkingArea> ParkingAreas { get; set; }
     public DbSet<Pass> Passes { get; set; }
     public DbSet<Subscription> Subscriptions { get; set; }
     public DbSet<Ticket> Tickets { get; set; }
     public DbSet<Vehicle> Vehicles { get; set; }
-    //public DbSet<UserRefreshToken> RefreshTokens { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 }

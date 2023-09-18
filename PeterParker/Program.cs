@@ -13,6 +13,11 @@ using System.Security.Claims;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using ExceptionHandling.CustomMiddlewares;
+using Microsoft.Extensions.Options;
+using System.Reflection;
+using MediatR;
+using PeterParker.Infrastructure.Commands;
+using PeterParker.Data.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,11 +27,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddLogging();
+builder.Services.AddLogging(config =>
+{
+    config.AddConsole();
+    config.AddDebug();
+});
 
 // Dependency Injection for Repository
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IGarageRepository, GarageRepository>();
+builder.Services.AddScoped<IParkingAreaRepository, ParkingAreaRepository>();
 builder.Services.AddScoped<IParkingSpaceRepository, ParkingSpaceRepository>();
 builder.Services.AddScoped<IPassRepository, PassRepository>();
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
@@ -36,6 +45,9 @@ builder.Services.AddScoped<IZoneRepository, ZoneRepository>();
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddTransient<IRequestHandler<AddZoneCommand, ZoneDataDTO>, AddZoneCommandHandler>();
+builder.Services.AddTransient<IRequestHandler<UpdateZoneCommand, ZoneDataDTO>, UpdateZoneCommandHandler>();
 
 builder.Services.AddSwaggerGen(options => // This enables the authorize button on Swagger
 {
@@ -81,7 +93,7 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = builder.Configuration.GetSection("Jwt:Issuer").Value,
         ValidAudience = builder.Configuration.GetSection("Jwt:Audience").Value,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Jwt:Key").Value)),
-
+        ClockSkew = TimeSpan.Zero
     };
 });
 
@@ -89,11 +101,26 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"));
+    options.AddPolicy("InspectorOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Inspector"));
 });
 
 //AutoMapper Config
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+    policy =>
+    {
+        policy.WithOrigins("http://localhost:5173", "https://w1nt3rr.github.io").AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
+//builder.Services.AddMediatR(typeof(StartupBase).GetTypeInfo().Assembly);//AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+//services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(MyCoolThingInAnotherAssemblyRequestHandler).GetTypeInfo().Assembly));
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 
 var app = builder.Build();
 
@@ -106,11 +133,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors(MyAllowSpecificOrigins);
+
 app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+//app.UseMiddleware<UserValidationMiddleware>();
 
 app.MapControllers();
 

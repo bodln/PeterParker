@@ -26,21 +26,18 @@ namespace PeterParker.Infrastructure.Repositories
 
         public void Add(TicketDTO request)
         {
-            if (request.ParkingSpaceId == null || request.ZoneId == null)
+            if (request.ParkingSpaceGuid == null || request.ZoneGuid == null)
             {
                 throw new MissingParametersException("Missing parameters for ticket creation.");
             }
             Ticket ticket = mapper.Map<Ticket>(request);
-            ticket.Zone = context.Zones.Where(z => z.Id == request.ZoneId).FirstOrDefault();
             context.Tickets.Add(ticket);
             context.SaveChanges();
         }
 
-        public List<Ticket> GetAll()
+        public List<TicketDTO> GetAll()
         {
-            return context.Tickets
-                .Include(t => t.Zone)
-                .ToList();
+            return mapper.Map<List<TicketDTO>>(context.Tickets.ToList()); // map...
         }
     }
 }

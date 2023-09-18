@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace PeterParker.Infrastructure.Exceptions
 {
-    internal class ParkingSpaceTakenException : ApplicationException
+    internal class VehicleAlreadyParkedException : ApplicationException
     {
-        public ParkingSpaceTakenException() : base("Parking space is already taken.")
+        public VehicleAlreadyParkedException(string vehicleRegistration) : base($"Vehicle with the registration {vehicleRegistration}, is already parked.")
         {
 
         }

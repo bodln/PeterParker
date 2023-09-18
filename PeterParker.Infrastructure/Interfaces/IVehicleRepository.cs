@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using PeterParker.Data.DTOs;
 using PeterParker.Data.Models;
 using System;
@@ -12,9 +13,9 @@ namespace PeterParker.Infrastructure.Interfaces
     public interface IVehicleRepository //: IRepository<VehicleDTO>
     {
         Task AddVehicle(VehicleDTO request);
-        Task DeleteVehicle(string request);
-        Task<List<VehicleDTO>> GetAllVehiclesForUserByEmail(string request);
-        Task ParkVehicle(string registration, string zoneGeoJSON, int parkingSpaceNumber);
-        Task UnparkVehicle(string zoneGeoJSON, int parkingSpaceNumber);
+        Task DeleteVehicle(VehicleDTO request);
+        Task<List<VehicleDTO>> GetAllVehiclesForUserByEmail(HttpRequest request);
+        Task ParkVehicle(Guid parkingSpaceGuid, VehicleDTO vehicleDTO);
+        Task UnparkVehicle(Guid parkingSpaceGuid);
     }
 }
