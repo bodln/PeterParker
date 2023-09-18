@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PeterParker.Data.DTOs;
 using PeterParker.Data.Models;
 using PeterParker.Infrastructure;
+using PeterParker.Infrastructure.Commands;
 
 namespace PeterParker.Controllers
 {
@@ -11,17 +13,23 @@ namespace PeterParker.Controllers
     public class ZoneController : ControllerBase
     {
         private readonly IUnitOfWork unitOfWork;
+        private readonly IMediator mediator;
 
-        public ZoneController(IUnitOfWork unitOfWork)
+        public ZoneController(IUnitOfWork unitOfWork,
+            IMediator mediator)
         {
             this.unitOfWork = unitOfWork;
+            this.mediator = mediator;
         }
 
         [HttpPost("Add")]
         public async Task<IActionResult> Add(ZoneDTO request)
         {
-            ZoneDataDTO response = await unitOfWork.ZoneRepository.Add(request);
-            return Ok(response);
+            var query = new AddZoneCommand()
+            {
+                request = request
+            };
+            return Ok(await mediator.Send(query));
         }
 
         [HttpGet("All")]
@@ -34,8 +42,11 @@ namespace PeterParker.Controllers
         [HttpPatch("Update")]
         public async Task<IActionResult> Update(ZoneDTO request)
         {
-            ZoneDataDTO zoneDataDTO = await unitOfWork.ZoneRepository.Update(request);
-            return Ok(zoneDataDTO);
+            var query = new UpdateZoneCommand()
+            {
+                request = request
+            };
+            return Ok(await mediator.Send(query));
         }
 
         [HttpDelete("Delete")]

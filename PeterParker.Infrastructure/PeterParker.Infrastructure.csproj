@@ -28,4 +28,8 @@
     <ProjectReference Include="..\PeterParker.Data\PeterParker.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Queries\" />
+  </ItemGroup>
+
 </Project>

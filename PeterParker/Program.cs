@@ -14,6 +14,10 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using ExceptionHandling.CustomMiddlewares;
 using Microsoft.Extensions.Options;
+using System.Reflection;
+using MediatR;
+using PeterParker.Infrastructure.Commands;
+using PeterParker.Data.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +45,9 @@ builder.Services.AddScoped<IZoneRepository, ZoneRepository>();
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddTransient<IRequestHandler<AddZoneCommand, ZoneDataDTO>, AddZoneCommandHandler>();
+builder.Services.AddTransient<IRequestHandler<UpdateZoneCommand, ZoneDataDTO>, UpdateZoneCommandHandler>();
 
 builder.Services.AddSwaggerGen(options => // This enables the authorize button on Swagger
 {
@@ -111,6 +118,9 @@ builder.Services.AddCors(options =>
     });
 });
 
+//builder.Services.AddMediatR(typeof(StartupBase).GetTypeInfo().Assembly);//AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+//services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(MyCoolThingInAnotherAssemblyRequestHandler).GetTypeInfo().Assembly));
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 
 var app = builder.Build();
 

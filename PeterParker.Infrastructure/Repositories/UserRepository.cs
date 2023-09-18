@@ -153,14 +153,34 @@ namespace PeterParker.Infrastructure.Repositories
                 throw new NotFoundException("User not found.");
             }
 
+            logger.LogInformation("User found.");
+
             user.FirstName = userRegisterDTO.FirstName;
             user.LastName = userRegisterDTO.LastName;
             user.HomeAddress = userRegisterDTO.HomeAddress;
+
+
 
             if (userRegisterDTO.Password != null)
             {
                 string resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
                 var result = await userManager.ResetPasswordAsync(user, resetToken, userRegisterDTO.Password);
+
+                if (!result.Succeeded)
+                {
+                    var errors = result.Errors;
+                    string error = string.Empty;
+                    foreach (var e in errors)
+                    {
+                        error += e.Description + " ";
+                    }
+
+                    throw new BadUserDataException(error);
+                }
+            }
+            else
+            {
+                throw new BadUserDataException("No password has been recieved.");
             }
 
             context.SaveChanges();
