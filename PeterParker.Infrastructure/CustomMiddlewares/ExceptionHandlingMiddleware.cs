@@ -54,6 +54,11 @@ public class ExceptionHandlingMiddleware
                 errorResponse.Message = ex.Message;
                 break;
 
+            case BadUserDataException ex:
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                errorResponse.Message = ex.Message;
+                break;
+
             case IncorrectLoginInfoException ex:
                 response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 errorResponse.Message = ex.Message;
