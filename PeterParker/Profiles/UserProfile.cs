@@ -32,7 +32,7 @@ public class UserProfile : Profile
         CreateMap<VehicleDTO, Vehicle>()
             .ForMember(dest =>
                 dest.User,
-                opt => opt.MapFrom(src => context!.Users.First(u => u.Email == src.UserEmail)) // <-- Doesn't work
+                opt => opt.Ignore() // <-- Doesn't work
                 );
 
         CreateMap<Vehicle, VehicleDTO>()
