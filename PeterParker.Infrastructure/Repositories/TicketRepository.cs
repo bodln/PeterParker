@@ -37,7 +37,7 @@ namespace PeterParker.Infrastructure.Repositories
 
         public List<TicketDTO> GetAll()
         {
-            return mapper.Map<List<TicketDTO>>(context.Tickets.ToList()); // map...
+            return mapper.Map<List<TicketDTO>>(context.Tickets.ToList()); 
         }
     }
 }

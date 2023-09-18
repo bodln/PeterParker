@@ -14,7 +14,7 @@ namespace PeterParker.Data.Models
         [Required]
         [Unique]
         public string Registration { get; set; } = string.Empty;
-        public Guid ParkingSpaceGuid { get; set; }
+        public Guid ParkingSpaceGuid { get; set; } = Guid.Empty;
         public User User { get; set; }
     }
 }

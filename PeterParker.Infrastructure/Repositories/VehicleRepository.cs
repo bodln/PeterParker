@@ -39,20 +39,34 @@ namespace PeterParker.Infrastructure.Repositories
             this.context = context;
             this.logger = logger;
         }
-        public async Task AddVehicle(VehicleDTO request)
+        public async Task AddVehicle(HttpRequest request, VehicleDTO vehicleDTO)
         {
-            if (await context.Vehicles.AnyAsync(v => v.Registration == request.Registration))
+            if (await context.Vehicles.AnyAsync(v => v.Registration == vehicleDTO.Registration))
             {
-                throw new DuplicateObjectException($"A vehicle with the registration: {request.Registration}, already exists.");
+                throw new DuplicateObjectException($"A vehicle with the registration: {vehicleDTO.Registration}, already exists.");
             }
 
             Vehicle vehicle = mapper.Map<Vehicle>(request);
-            vehicle.User = await userManager.FindByEmailAsync(request.UserEmail);
+
+            string token = request.Headers["Authorization"].ToString().Replace("bearer ", "");
+
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            JwtSecurityToken jwtToken = handler.ReadToken(token) as JwtSecurityToken;
+
+            string email = jwtToken.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
+
+            vehicle.User = await context.Users
+                .Where(u => u.Email == email)
+                .Include(u => u.Subscription)
+                .Include(u => u.Tickets)
+                .Include(u => u.Pass)
+                .FirstOrDefaultAsync();
+
             vehicle.GUID = Guid.NewGuid();
 
             if (vehicle.User == null)
             {
-                throw new NotFoundException("The owner for this vehicle is not found.");
+                throw new NotFoundException("The owner for this vehicle has not been found.");
             }
 
             logger.LogInformation("Adding vehicle.");
@@ -100,7 +114,8 @@ namespace PeterParker.Infrastructure.Repositories
         {
             logger.LogInformation("Getting vehicles.");
 
-            Vehicle vehicle = await context.Vehicles.FirstOrDefaultAsync(v => v.Registration == request.Registration);
+            Vehicle vehicle = await context.Vehicles
+                .FirstOrDefaultAsync(v => v.Registration == request.Registration);
 
             if (vehicle == null)
             {
@@ -109,7 +124,7 @@ namespace PeterParker.Infrastructure.Repositories
 
             logger.LogInformation("Vehicle found.");
 
-            if (vehicle.ParkingSpaceGuid != null)
+            if (vehicle.ParkingSpaceGuid != Guid.Empty)
             {
                 ParkingSpace parkingSpace = await context.ParkingSpaces
                     .Include(ps => ps.Vehicle)
@@ -127,17 +142,17 @@ namespace PeterParker.Infrastructure.Repositories
             logger.LogInformation("Vehicle deleted.");
         }
 
-        public async Task ParkVehicle(Guid parkingSpaceGuid, VehicleDTO vehicleDTO)
+        public async Task ParkVehicle(ParkVehicleDTO parkVehicleDTO)
         {
             logger.LogInformation("Getting vehicle.");
 
-            Vehicle vehicle = await context.Vehicles.Where(v => v.Registration == vehicleDTO.Registration).FirstOrDefaultAsync();
+            Vehicle vehicle = await context.Vehicles.Where(v => v.GUID == parkVehicleDTO.VehicleGuid).FirstOrDefaultAsync();
 
-            vehicle.ParkingSpaceGuid = parkingSpaceGuid;
+            vehicle.ParkingSpaceGuid = parkVehicleDTO.ParkingSpaceGuid;
 
             if (vehicle == null)
             {
-                throw new NotFoundException($"The vehicles with the registration: {vehicleDTO.Registration}, could not be found.");
+                throw new NotFoundException($"The vehicles with the registration: {vehicle.Registration}, could not be found.");
             }
 
             logger.LogInformation("Getting parking space.");
@@ -154,7 +169,7 @@ namespace PeterParker.Infrastructure.Repositories
             logger.LogInformation("Parking vehicle.");
 
             ParkingSpace parkingSpace = await context.ParkingSpaces
-                .Where(ps => ps.GUID == parkingSpaceGuid)
+                .Where(ps => ps.GUID == parkVehicleDTO.ParkingSpaceGuid)
                 .Include(ps => ps.Vehicle)
                 .FirstOrDefaultAsync();
 
@@ -187,6 +202,7 @@ namespace PeterParker.Infrastructure.Repositories
 
             logger.LogInformation("Unarking vehicle.");
 
+            parkingSpace.Vehicle.GUID = Guid.Empty;
             parkingSpace.Vehicle = null;
             await context.SaveChangesAsync();
 

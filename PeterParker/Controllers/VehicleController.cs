@@ -18,7 +18,7 @@ namespace PeterParker.Controllers
         [HttpPost("AddVehicle")]
         public async Task<IActionResult> AddVehicle(VehicleDTO request)
         {
-            await unitOfWork.VehicleRepository.AddVehicle(request);
+            await unitOfWork.VehicleRepository.AddVehicle(HttpContext.Request, request);
             return Ok("Vehicle successfully added.");
         }
 
@@ -37,9 +37,9 @@ namespace PeterParker.Controllers
         }
 
         [HttpPost("ParkVehicle")]
-        public async Task<IActionResult> ParkVehicle(Guid parkingSpace, VehicleDTO vehicle)
+        public async Task<IActionResult> ParkVehicle(ParkVehicleDTO request)
         {
-            await unitOfWork.VehicleRepository.ParkVehicle(parkingSpace, vehicle);
+            await unitOfWork.VehicleRepository.ParkVehicle(request);
             return Ok("Successfully parked!");
         }
 

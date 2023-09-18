@@ -12,10 +12,10 @@ namespace PeterParker.Infrastructure.Interfaces
 {
     public interface IVehicleRepository //: IRepository<VehicleDTO>
     {
-        Task AddVehicle(VehicleDTO request);
+        Task AddVehicle(HttpRequest request, VehicleDTO vehicleDTO);
         Task DeleteVehicle(VehicleDTO request);
         Task<List<VehicleDTO>> GetAllVehiclesForUserByEmail(HttpRequest request);
-        Task ParkVehicle(Guid parkingSpaceGuid, VehicleDTO vehicleDTO);
+        Task ParkVehicle(ParkVehicleDTO parkVehicleDTO);
         Task UnparkVehicle(Guid parkingSpaceGuid);
     }
 }
