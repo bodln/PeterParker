@@ -55,6 +55,22 @@ namespace PeterParker.Infrastructure.Repositories
 
             var user = mapper.Map<User>(request);
 
+            if (string.IsNullOrWhiteSpace(user.FirstName) ||
+            string.IsNullOrWhiteSpace(user.LastName))
+            {
+                throw new BadUserDataException("No field should be empty.");
+            }
+
+            if (user.FirstName.Length > 12 || user.FirstName.Length < 2)
+            {
+                throw new BadUserDataException("First name cannot be longer than 12 characters or shorter than 2.");
+            }
+
+            if (user.LastName.Length > 20 || user.LastName.Length < 2)
+            {
+                throw new BadUserDataException("Last name cannot be longer than 20 characters or shorter than 2.");
+            }
+
             logger.LogInformation("Adding user.");
 
             var result = await userManager.CreateAsync(user, request.Password);
