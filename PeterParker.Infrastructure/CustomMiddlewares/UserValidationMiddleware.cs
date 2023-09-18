@@ -43,8 +43,8 @@ public class UserValidationMiddleware
 
     private void IsValidUser(UserRegisterDTO user)
     {
-        if (!string.IsNullOrWhiteSpace(user.FirstName) &&
-            !string.IsNullOrWhiteSpace(user.LastName))
+        if (string.IsNullOrWhiteSpace(user.FirstName) ||
+            string.IsNullOrWhiteSpace(user.LastName))
         {
             throw new BadUserDataException("No field should be empty.");
         }
