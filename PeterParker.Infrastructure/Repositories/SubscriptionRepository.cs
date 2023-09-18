@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PeterParker.Data;
@@ -18,17 +17,14 @@ namespace PeterParker.Infrastructure.Repositories
         private readonly DataContext context;
         private readonly IMapper mapper;
         private readonly ILogger<Subscription> logger;
-        private readonly UserManager<Subscription> userManager;
 
         public SubscriptionRepository(DataContext context,
             IMapper mapper,
-            ILogger<Subscription> logger,
-            UserManager<Subscription> userManager)
+            ILogger<Subscription> logger)
         {
             this.context = context;
             this.mapper = mapper;
             this.logger = logger;
-            this.userManager = userManager;
         }
 
         public async Task Add(HttpRequest request)

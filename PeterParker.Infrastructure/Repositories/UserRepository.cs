@@ -75,7 +75,13 @@ namespace PeterParker.Infrastructure.Repositories
 
             string email = jwtToken.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
 
-            var user = await userManager.FindByEmailAsync(email);
+            User user = await context.Users
+                .Where(u => u.Email == email)
+                .Include(u => u.Subscription)
+                .Include(u => u.Tickets)
+                .Include(u => u.Pass)
+                .FirstOrDefaultAsync();
+
             var userDTO = mapper.Map<UserDataDTO>(user);
 
             logger.LogInformation("Success.");
