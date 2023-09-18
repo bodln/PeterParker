@@ -39,6 +39,14 @@ namespace PeterParker.Controllers
             return Ok(userDTO);
         }
 
+        [HttpGet("Update")]
+        [Authorize]
+        public async Task<IActionResult> UpdateUserData(UserRegisterDTO registerDTO)
+        {
+            await unitOfWork.UserRepository.Update(HttpContext.Request, registerDTO);
+            return Ok();
+        }
+
         [HttpPost("TokenRefresh")]
         public async Task<AuthTokens> TokenRefresh()
         {

@@ -120,11 +120,36 @@ namespace PeterParker.Infrastructure.Repositories
 
         public async Task Update(HttpRequest request, UserRegisterDTO userRegisterDTO)
         {
-            var user = await userManager.FindByEmailAsync(userRegisterDTO.Email);
+            logger.LogInformation("Getting user.");
 
-            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+            string token = request.Headers["Authorization"].ToString().Replace("bearer ", "");
 
-            var result = await userManager.ResetPasswordAsync(user, token, "MyN3wP@ssw0rd");
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            JwtSecurityToken jwtToken = handler.ReadToken(token) as JwtSecurityToken;
+
+            string email = jwtToken.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
+
+            User user = await context.Users
+                .Where(u => u.Email == email)
+                .Include(u => u.Subscription)
+                .Include(u => u.Tickets)
+                .Include(u => u.Pass)
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                throw new NotFoundException("User not found.");
+            }
+
+            user.FirstName = userRegisterDTO.FirstName;
+            user.LastName = userRegisterDTO.LastName;
+            user.Email = userRegisterDTO.HomeAddress;
+
+            var result = await userManager.ResetPasswordAsync(user, token, userRegisterDTO.Password);
+
+            context.SaveChanges();
+
+            logger.LogInformation("Success.");
         }
 
         private RefreshToken GenerateRefreshToken()
