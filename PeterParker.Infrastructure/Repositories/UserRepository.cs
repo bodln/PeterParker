@@ -143,9 +143,13 @@ namespace PeterParker.Infrastructure.Repositories
 
             user.FirstName = userRegisterDTO.FirstName;
             user.LastName = userRegisterDTO.LastName;
-            user.Email = userRegisterDTO.HomeAddress;
+            user.HomeAddress = userRegisterDTO.HomeAddress;
 
-            var result = await userManager.ResetPasswordAsync(user, token, userRegisterDTO.Password);
+            if (userRegisterDTO.Password != null)
+            {
+                string resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+                var result = await userManager.ResetPasswordAsync(user, resetToken, userRegisterDTO.Password);
+            }
 
             context.SaveChanges();
 
