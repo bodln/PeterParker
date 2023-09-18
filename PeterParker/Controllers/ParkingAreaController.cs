@@ -29,5 +29,12 @@ namespace PeterParker.Controllers
             await unitOfWork.ParkingAreaRepository.DeleteArea(request);
             return Ok("Area deleted.");
         }
+
+        [HttpGet("Search")]
+        public async Task<IActionResult> Search(string request)
+        {
+            List<ParkingAreaDTO> response = await unitOfWork.ParkingAreaRepository.SearchAreas(request);
+            return Ok(response);
+        }
     }
 }

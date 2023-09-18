@@ -91,21 +91,21 @@ namespace PeterParker.Infrastructure.Repositories
                 throw new Exception(e.Message);
             }
         }
-        // paging, sorting and filtering example
-        public async Task<List<ParkingAreaDTO>> SearchAreaAddress(string search, int? pageNumber)
+
+        public async Task<List<ParkingAreaDTO>> SearchAreas(string request)
         {
             List<ParkingArea> parkingAreas = await context.ParkingAreas
                 .Include(pa => pa.ParkingSpaces)
                     .ThenInclude(ps => ps.Vehicle)
-                .Where(pa => pa.Address.Contains(search, StringComparison.CurrentCultureIgnoreCase))
+                .Where(pa => pa.Address.Contains(request, StringComparison.CurrentCultureIgnoreCase))
                 .OrderBy(pa => pa.Address)
                 .ToListAsync();
 
-            int pageSize = 5;
-            parkingAreas = PaginatedList<ParkingArea>
-                .Create(parkingAreas.AsQueryable(),
-                pageNumber ?? 1,
-                pageSize);
+            //int pageSize = 5;
+            //parkingAreas = PaginatedList<ParkingArea>
+            //    .Create(parkingAreas.AsQueryable(),
+            //    pageNumber ?? 1,
+            //    pageSize);
 
             return mapper.Map<List<ParkingAreaDTO>>(parkingAreas);
         }

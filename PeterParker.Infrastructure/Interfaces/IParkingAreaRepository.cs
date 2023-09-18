@@ -13,5 +13,6 @@ namespace PeterParker.Infrastructure.Interfaces
         Task<ParkingArea> CreateParkingArea(Guid zoneGuid, ParkingAreaDTO request);
         Task DeleteArea(ParkingAreaDTO parkingAreaDTO);
         Task<List<ParkingAreaDTO>> GetAllParkingAreas();
+        Task<List<ParkingAreaDTO>> SearchAreas(string request);
     }
 }
