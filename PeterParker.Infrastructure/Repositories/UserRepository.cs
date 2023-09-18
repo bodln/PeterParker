@@ -53,23 +53,9 @@ namespace PeterParker.Infrastructure.Repositories
                 throw new EmailTakenException($"Account with the email address: {request.Email}, already exists.");
             }
 
+            ValidateUser(request);
+            
             var user = mapper.Map<User>(request);
-
-            if (string.IsNullOrWhiteSpace(user.FirstName) ||
-            string.IsNullOrWhiteSpace(user.LastName))
-            {
-                throw new BadUserDataException("No field should be empty.");
-            }
-
-            if (user.FirstName.Length > 12 || user.FirstName.Length < 2)
-            {
-                throw new BadUserDataException("First name cannot be longer than 12 characters or shorter than 2.");
-            }
-
-            if (user.LastName.Length > 20 || user.LastName.Length < 2)
-            {
-                throw new BadUserDataException("Last name cannot be longer than 20 characters or shorter than 2.");
-            }
 
             logger.LogInformation("Adding user.");
 
@@ -90,6 +76,25 @@ namespace PeterParker.Infrastructure.Repositories
             await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "User"));
 
             logger.LogInformation("User added.");
+        }
+
+        private void ValidateUser(UserRegisterDTO user)
+        {
+            if (string.IsNullOrWhiteSpace(user.FirstName) ||
+            string.IsNullOrWhiteSpace(user.LastName))
+            {
+                throw new BadUserDataException("No field should be empty.");
+            }
+
+            if (user.FirstName.Length > 12 || user.FirstName.Length < 2)
+            {
+                throw new BadUserDataException("First name cannot be longer than 12 characters or shorter than 2.");
+            }
+
+            if (user.LastName.Length > 20 || user.LastName.Length < 2)
+            {
+                throw new BadUserDataException("Last name cannot be longer than 20 characters or shorter than 2.");
+            }
         }
 
         public async Task<UserDataDTO> ReturnUserData(HttpRequest request)
@@ -148,6 +153,8 @@ namespace PeterParker.Infrastructure.Repositories
 
         public async Task Update(HttpRequest request, UserRegisterDTO userRegisterDTO)
         {
+            ValidateUser(userRegisterDTO);
+
             logger.LogInformation("Getting user.");
 
             string token = request.Headers["Authorization"].ToString().Replace("bearer ", "");
