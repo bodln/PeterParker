@@ -101,7 +101,7 @@ namespace PeterParker.Infrastructure.Repositories
             {
                 string token = await BuildTokenAsync(request.Email);
 
-                var refreshToken = GenerateRefershToken();
+                var refreshToken = GenerateRefreshToken();
                 await SetRefreshToken(refreshToken, request.Email);
 
                 logger.LogInformation("User signed in.");
@@ -118,7 +118,7 @@ namespace PeterParker.Infrastructure.Repositories
             }
         }
 
-        private RefreshToken GenerateRefershToken()
+        private RefreshToken GenerateRefreshToken()
         {
             var refreshToken = new RefreshToken
             {
@@ -217,7 +217,7 @@ namespace PeterParker.Infrastructure.Repositories
             // Make a seperate create token function or put it in User class
             string token = await BuildTokenAsync(user.Email);
 
-            var newRefreshToken = GenerateRefershToken();
+            var newRefreshToken = GenerateRefreshToken();
             await SetRefreshToken(newRefreshToken, user.Email);
 
             return new AuthTokens

@@ -94,6 +94,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"));
+    options.AddPolicy("InspectorOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Inspector"));
 });
 
 //AutoMapper Config
