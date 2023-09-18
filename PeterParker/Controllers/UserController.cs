@@ -39,7 +39,7 @@ namespace PeterParker.Controllers
             return Ok(userDTO);
         }
 
-        [HttpGet("Update")]
+        [HttpPut("Update")]
         [Authorize]
         public async Task<IActionResult> UpdateUserData(UserRegisterDTO registerDTO)
         {
