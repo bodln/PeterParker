@@ -46,7 +46,7 @@ namespace PeterParker.Infrastructure.Repositories
                 throw new DuplicateObjectException($"A vehicle with the registration: {vehicleDTO.Registration}, already exists.");
             }
 
-            Vehicle vehicle = mapper.Map<Vehicle>(request);
+            Vehicle vehicle = mapper.Map<Vehicle>(vehicleDTO);
 
             string token = request.Headers["Authorization"].ToString().Replace("bearer ", "");
 
