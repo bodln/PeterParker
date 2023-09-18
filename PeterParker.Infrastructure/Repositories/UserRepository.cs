@@ -57,7 +57,19 @@ namespace PeterParker.Infrastructure.Repositories
 
             logger.LogInformation("Adding user.");
 
-            await userManager.CreateAsync(user, request.Password);
+            var result = await userManager.CreateAsync(user, request.Password);
+
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors;
+                string error = string.Empty;
+                foreach (var e in errors)
+                {
+                    error += e.Description + " ";
+                }
+                
+                throw new BadUserDataException(error);
+            }
 
             await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "User"));
 
