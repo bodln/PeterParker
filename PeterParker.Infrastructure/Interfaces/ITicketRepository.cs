@@ -11,6 +11,6 @@ namespace PeterParker.Infrastructure.Interfaces
     public interface ITicketRepository //: IRepository<Ticket>
     {
         void Add(TicketDTO request);
-        List<Ticket> GetAll();
+        List<TicketDTO> GetAll();
     }
 }
