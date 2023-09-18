@@ -118,6 +118,15 @@ namespace PeterParker.Infrastructure.Repositories
             }
         }
 
+        public async Task Update(HttpRequest request, UserRegisterDTO userRegisterDTO)
+        {
+            var user = await userManager.FindByEmailAsync(userRegisterDTO.Email);
+
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+
+            var result = await userManager.ResetPasswordAsync(user, token, "MyN3wP@ssw0rd");
+        }
+
         private RefreshToken GenerateRefreshToken()
         {
             var refreshToken = new RefreshToken
