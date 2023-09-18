@@ -27,6 +27,7 @@ namespace PeterParker.Infrastructure.Repositories
         private readonly DataContext context;
         private readonly IConfiguration config;
         private readonly ILogger<User> logger;
+        private readonly IVehicleRepository vehicleRepository;
         private readonly IMapper mapper;
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
@@ -36,11 +37,13 @@ namespace PeterParker.Infrastructure.Repositories
             SignInManager<User> signInManager,
             DataContext context, 
             IConfiguration config,
-            ILogger<User> logger) //: base(context)
+            ILogger<User> logger,
+            IVehicleRepository vehicleRepository) //: base(context)
         {
             this.context = context;
             this.config = config;
             this.logger = logger;
+            this.vehicleRepository = vehicleRepository;
             this.mapper = mapper;
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -115,7 +118,9 @@ namespace PeterParker.Infrastructure.Repositories
                 .Include(u => u.Pass)
                 .FirstOrDefaultAsync();
 
-            var userDTO = mapper.Map<UserDataDTO>(user);
+            UserDataDTO userDTO = mapper.Map<UserDataDTO>(user);
+
+            userDTO.Vehicles = await vehicleRepository.GetAllVehiclesForUserByEmail(request);
 
             logger.LogInformation("Success.");
 
