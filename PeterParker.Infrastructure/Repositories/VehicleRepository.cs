@@ -254,6 +254,13 @@ namespace PeterParker.Infrastructure.Repositories
                 throw new NoParkingPermitException("Your pass has expired.");
             }
 
+            if (vehicle.User.Pass != null &&
+                vehicle.User.Pass.Expiration < DateTime.Now &&
+                !vehicle.User.Pass.Zones.Contains(zone))
+            {
+                throw new NoParkingPermitException("Your pass is not valid for this zone.");
+            }
+
             if (vehicle.User.Pass.Expiration > DateTime.Now &&
                 vehicle.User.Subscription.Expiration > DateTime.Now)
             {
