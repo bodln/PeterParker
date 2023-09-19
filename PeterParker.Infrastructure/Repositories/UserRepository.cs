@@ -187,8 +187,6 @@ namespace PeterParker.Infrastructure.Repositories
             user.LastName = userRegisterDTO.LastName;
             user.HomeAddress = userRegisterDTO.HomeAddress;
 
-
-
             if (userRegisterDTO.Password != null)
             {
                 string resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
@@ -205,10 +203,8 @@ namespace PeterParker.Infrastructure.Repositories
 
                     throw new BadUserDataException(error);
                 }
-            }
-            else
-            {
-                throw new BadUserDataException("No password has been recieved.");
+
+                logger.LogInformation("Password changed.");
             }
 
             context.SaveChanges();
