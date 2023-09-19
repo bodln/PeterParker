@@ -296,12 +296,12 @@ namespace PeterParker.Infrastructure.Repositories
 
         // I'm thinking that on the frontend the user knows where his vehicle is parked
         // so when unparking just send that info with no need of sending the registration
-        public async Task UnparkVehicle(Guid parkingSpaceGuid)
+        public async Task UnparkVehicle(ParkVehicleDTO parkVehicleDTO)
         {
             logger.LogInformation("Getting parking space.");
 
             ParkingSpace parkingSpace = await context.ParkingSpaces
-                .Where(ps => ps.GUID == parkingSpaceGuid).Include(ps => ps.Vehicle).FirstOrDefaultAsync();
+                .Where(ps => ps.GUID == parkVehicleDTO.ParkingSpaceGuid).Include(ps => ps.Vehicle).FirstOrDefaultAsync();
 
             if (parkingSpace == null)
             {
