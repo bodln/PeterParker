@@ -8,7 +8,7 @@ namespace PeterParker.Infrastructure.Exceptions
 {
     public class IncorrectLoginInfoException : ApplicationException
     {
-        public IncorrectLoginInfoException() : base("Incorrect Login info sent.")
+        public IncorrectLoginInfoException(string message = "Incorrect Login info sent.") : base(message)
         {
 
         }

@@ -130,6 +130,11 @@ namespace PeterParker.Infrastructure.Repositories
 
         public async Task<AuthTokens> LogInUser(UserLoginDTO request)
         {
+            if (String.IsNullOrWhiteSpace(request.Email) || String.IsNullOrWhiteSpace(request.Password))
+            {
+                throw new IncorrectLoginInfoException("No field should be empty.");
+            }
+
             logger.LogInformation("Signing user in.");
 
             var result = await signInManager.PasswordSignInAsync(request.Email,
