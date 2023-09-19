@@ -256,7 +256,7 @@ namespace PeterParker.Infrastructure.Repositories
 
             if (vehicle.User.Pass != null &&
                 vehicle.User.Pass.Expiration < DateTime.Now &&
-                !vehicle.User.Pass.Zones.Contains(zone))
+                zone == null)
             {
                 throw new NoParkingPermitException("Your pass is not valid for this zone.");
             }
