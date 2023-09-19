@@ -16,7 +16,7 @@ namespace PeterParker.Infrastructure.Interfaces
     {
         Task<AuthTokens> LogInUser(UserLoginDTO request);
         Task<List<UserDataDTO>> GetAll();
-        Task RegisterUser(UserRegisterDTO request);
+        Task<AuthTokens> RegisterUser(UserRegisterDTO request);
         Task<UserDataDTO> ReturnUserData(HttpRequest request);
         Task AddAdminRole(UserLoginDTO request);
         Task RemoveAdminRole(UserLoginDTO request);

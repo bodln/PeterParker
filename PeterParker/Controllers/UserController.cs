@@ -18,10 +18,10 @@ namespace PeterParker.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> RegisterUser(UserRegisterDTO request)
+        public async Task<AuthTokens> RegisterUser(UserRegisterDTO request)
         {
-            await unitOfWork.UserRepository.RegisterUser(request);
-            return Ok(request.Email + " Successfully Registered.");
+            AuthTokens tokens = await unitOfWork.UserRepository.RegisterUser(request);
+            return tokens;
         }
 
         [HttpPost("LogIn")]
