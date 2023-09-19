@@ -41,6 +41,11 @@ namespace PeterParker.Infrastructure.Repositories
         }
         public async Task AddVehicle(HttpRequest request, VehicleDTO vehicleDTO)
         {
+            if (String.IsNullOrWhiteSpace(vehicleDTO.Registration))
+            {
+                throw new MissingParametersException("Registration may not be left empty.");
+            }
+
             if (await context.Vehicles.AnyAsync(v => v.Registration == vehicleDTO.Registration))
             {
                 throw new DuplicateObjectException($"A vehicle with the registration: {vehicleDTO.Registration}, already exists.");
