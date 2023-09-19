@@ -67,7 +67,6 @@ namespace PeterParker.Infrastructure.Repositories
             {
                 throw new Exception(e.Message);
             }
-
         }
 
         public async Task<List<ParkingAreaDTO>> GetAllParkingAreas()
