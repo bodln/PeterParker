@@ -49,7 +49,7 @@ namespace PeterParker.Infrastructure.Repositories
             this.signInManager = signInManager;
         }
         //Keep in mind the return types
-        public async Task RegisterUser(UserRegisterDTO request)
+        public async Task<AuthTokens> RegisterUser(UserRegisterDTO request)
         {
             if (await userManager.FindByEmailAsync(request.Email) != null)
             {
@@ -79,6 +79,18 @@ namespace PeterParker.Infrastructure.Repositories
             await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "User"));
 
             logger.LogInformation("User added.");
+
+            // Return tokens on register
+            string token = await BuildTokenAsync(request.Email);
+
+            var refreshToken = GenerateRefreshToken();
+            await SetRefreshToken(refreshToken, request.Email);
+
+            return new AuthTokens
+            {
+                Token = token,
+                RefreshToken = refreshToken.Token
+            };
         }
 
         private void ValidateUser(UserRegisterDTO user)
