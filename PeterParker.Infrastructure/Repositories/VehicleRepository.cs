@@ -154,10 +154,20 @@ namespace PeterParker.Infrastructure.Repositories
                 .Include(ps => ps.Vehicle)
                 .FirstOrDefaultAsync();
 
+            if (parkingSpace == null)
+            {
+                throw new NotFoundException("Parking space not found.");
+            }
+
             ParkingArea parkingArea = await context.ParkingAreas
                 .Include(pa => pa.ParkingSpaces)
                 .Where(pa => pa.ParkingSpaces.Contains(parkingSpace))
                 .FirstOrDefaultAsync();
+
+            if (parkingArea == null)
+            {
+                throw new NotFoundException("Parking area not found.");
+            }
 
             string[] workingHoursArray = parkingArea.WorkingHours.Split("-");
 
@@ -167,7 +177,12 @@ namespace PeterParker.Infrastructure.Repositories
 
             if (start == end)
             {
-                await ParkVehicleFunction(parkVehicleDTO, parkingSpace);
+                await ParkVehicleFunction(parkVehicleDTO, 
+                    parkingSpace, 
+                    await context.Zones
+                    .Include(z => z.ParkingAreas)
+                    .Where(z => z.ParkingAreas.Contains(parkingArea))
+                    .FirstOrDefaultAsync());
                 return;
             }
 
@@ -176,7 +191,12 @@ namespace PeterParker.Infrastructure.Repositories
                 // start and stop times are in the same day
                 if (now >= start && now <= end)
                 {
-                    await ParkVehicleFunction(parkVehicleDTO, parkingSpace);
+                    await ParkVehicleFunction(parkVehicleDTO,
+                    parkingSpace,
+                    await context.Zones
+                    .Include(z => z.ParkingAreas)
+                    .Where(z => z.ParkingAreas.Contains(parkingArea))
+                    .FirstOrDefaultAsync());
                     return;
                 }
             }
@@ -185,27 +205,62 @@ namespace PeterParker.Infrastructure.Repositories
                 // start and stop times are in different days
                 if (now >= start || now <= end)
                 {
-                    await ParkVehicleFunction(parkVehicleDTO, parkingSpace);
+                    await ParkVehicleFunction(parkVehicleDTO,
+                    parkingSpace,
+                    await context.Zones
+                    .Include(z => z.ParkingAreas)
+                    .Where(z => z.ParkingAreas.Contains(parkingArea))
+                    .FirstOrDefaultAsync());
                     return;
                 }
             }
                 throw new AreaClosedException($"This parking area is currently close, and will remain so until {workingHoursArray[0]}:00");
         }
 
-        private async Task ParkVehicleFunction(ParkVehicleDTO parkVehicleDTO, ParkingSpace parkingSpace)
+        private async Task ParkVehicleFunction(ParkVehicleDTO parkVehicleDTO, ParkingSpace parkingSpace, Zone zone)
         {
             logger.LogInformation("Getting vehicle.");
 
-            Vehicle vehicle = await context.Vehicles.Where(v => v.GUID == parkVehicleDTO.VehicleGuid).FirstOrDefaultAsync();
+            Vehicle vehicle = await context.Vehicles
+                .Where(v => v.GUID == parkVehicleDTO.VehicleGuid)
+                .Include(v => v.User)
+                    .ThenInclude(u => u.Subscription)
+                .Include(v => v.User)
+                    .ThenInclude(u => u.Pass)
+                        .ThenInclude(p => p.Zones)
+                .FirstOrDefaultAsync();
 
             if (vehicle == null)
             {
                 throw new NotFoundException($"The vehicles with the Guid: {parkVehicleDTO.VehicleGuid}, could not be found.");
             }
-            
-            vehicle.ParkingSpaceGuid = parkVehicleDTO.ParkingSpaceGuid;
 
-            logger.LogInformation("Getting parking space.");
+            if (vehicle.User.Pass == null && vehicle.User.Subscription == null)
+            {
+                throw new NoParkingPermitException("There is no parking pass or subscription.");
+            }
+
+            if (vehicle.User.Subscription != null && 
+                vehicle.User.Subscription.Expiration > DateTime.Now &&
+                vehicle.User.Pass == null)
+            {
+                throw new NoParkingPermitException("Your subscription has expired.");
+            }
+
+            if (vehicle.User.Pass != null &&
+                vehicle.User.Pass.Expiration > DateTime.Now &&
+                vehicle.User.Subscription == null)
+            {
+                throw new NoParkingPermitException("Your pass has expired.");
+            }
+
+            if (vehicle.User.Pass.Expiration > DateTime.Now &&
+                vehicle.User.Subscription.Expiration > DateTime.Now)
+            {
+                throw new NoParkingPermitException("Both your pass and subscription have expired.");
+            }
+
+            vehicle.ParkingSpaceGuid = parkVehicleDTO.ParkingSpaceGuid;
 
             var result = await context.ParkingSpaces
                 .Include(ps => ps.Vehicle)

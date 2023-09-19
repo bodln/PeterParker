@@ -75,7 +75,12 @@ public class ExceptionHandlingMiddleware
                 break;
 
             case ParkingSpaceTakenException ex:
-                response.StatusCode = (int)HttpStatusCode.Conflict;
+                response.StatusCode = (int)HttpStatusCode.Forbidden;
+                errorResponse.Message = ex.Message;
+                break;
+
+            case NoParkingPermitException ex:
+                response.StatusCode = (int)HttpStatusCode.Forbidden;
                 errorResponse.Message = ex.Message;
                 break;
 
