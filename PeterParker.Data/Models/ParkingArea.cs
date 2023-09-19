@@ -6,12 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace PeterParker.Data.Models;
-public enum Types
-{
-    ParkingLot,
-    Garage,
-    UndergroundGarage
-}
 public class ParkingArea
 {
     public int Id { get; set; }

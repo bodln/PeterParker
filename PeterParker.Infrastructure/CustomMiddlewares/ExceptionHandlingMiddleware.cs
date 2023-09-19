@@ -79,6 +79,11 @@ public class ExceptionHandlingMiddleware
                 errorResponse.Message = ex.Message;
                 break;
 
+            case AreaClosedException ex:
+                response.StatusCode = (int)HttpStatusCode.Forbidden;
+                errorResponse.Message = ex.Message;
+                break;
+
             case VehicleAlreadyParkedException ex:
                 response.StatusCode = (int)HttpStatusCode.Conflict;
                 errorResponse.Message = ex.Message;

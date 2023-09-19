@@ -144,16 +144,61 @@ namespace PeterParker.Infrastructure.Repositories
 
         public async Task ParkVehicle(ParkVehicleDTO parkVehicleDTO)
         {
+            ParkingSpace parkingSpace = await context.ParkingSpaces
+                .Where(ps => ps.GUID == parkVehicleDTO.ParkingSpaceGuid)
+                .Include(ps => ps.Vehicle)
+                .FirstOrDefaultAsync();
+
+            ParkingArea parkingArea = await context.ParkingAreas
+                .Include(pa => pa.ParkingSpaces)
+                .Where(pa => pa.ParkingSpaces.Contains(parkingSpace))
+                .FirstOrDefaultAsync();
+
+            string[] workingHoursArray = parkingArea.WorkingHours.Split("-");
+
+            TimeSpan start = TimeSpan.Parse(workingHoursArray[0]+":00");
+            TimeSpan end = TimeSpan.Parse(workingHoursArray[1] + ":00"); 
+            TimeSpan now = DateTime.Now.TimeOfDay;
+
+            if (start == end)
+            {
+                await ParkVehicleFunction(parkVehicleDTO, parkingSpace);
+                return;
+            }
+
+            if (start < end)
+            {
+                // start and stop times are in the same day
+                if (now >= start && now <= end)
+                {
+                    await ParkVehicleFunction(parkVehicleDTO, parkingSpace);
+                    return;
+                }
+            }
+            else
+            {
+                // start and stop times are in different days
+                if (now >= start || now <= end)
+                {
+                    await ParkVehicleFunction(parkVehicleDTO, parkingSpace);
+                    return;
+                }
+            }
+                throw new AreaClosedException($"This parking area is currently close, and will remain so until {workingHoursArray[0]}:00");
+        }
+
+        private async Task ParkVehicleFunction(ParkVehicleDTO parkVehicleDTO, ParkingSpace parkingSpace)
+        {
             logger.LogInformation("Getting vehicle.");
 
             Vehicle vehicle = await context.Vehicles.Where(v => v.GUID == parkVehicleDTO.VehicleGuid).FirstOrDefaultAsync();
 
-            vehicle.ParkingSpaceGuid = parkVehicleDTO.ParkingSpaceGuid;
-
             if (vehicle == null)
             {
-                throw new NotFoundException($"The vehicles with the registration: {vehicle.Registration}, could not be found.");
+                throw new NotFoundException($"The vehicles with the Guid: {parkVehicleDTO.VehicleGuid}, could not be found.");
             }
+            
+            vehicle.ParkingSpaceGuid = parkVehicleDTO.ParkingSpaceGuid;
 
             logger.LogInformation("Getting parking space.");
 
@@ -168,11 +213,6 @@ namespace PeterParker.Infrastructure.Repositories
 
             logger.LogInformation("Parking vehicle.");
 
-            ParkingSpace parkingSpace = await context.ParkingSpaces
-                .Where(ps => ps.GUID == parkVehicleDTO.ParkingSpaceGuid)
-                .Include(ps => ps.Vehicle)
-                .FirstOrDefaultAsync();
-
             if (parkingSpace.Vehicle == null)
             {
                 parkingSpace.Vehicle = vehicle;
@@ -186,6 +226,7 @@ namespace PeterParker.Infrastructure.Repositories
 
             logger.LogInformation("Vehicle parked.");
         }
+
         // I'm thinking that on the frontend the user knows where his vehicle is parked
         // so when unparking just send that info with no need of sending the registration
         public async Task UnparkVehicle(Guid parkingSpaceGuid)
@@ -200,9 +241,14 @@ namespace PeterParker.Infrastructure.Repositories
                 throw new NotFoundException($"The parking space with number: {parkingSpace.Number}, could not be found.");
             }
 
+            if (parkingSpace.Vehicle == null)
+            {
+                throw new NotFoundException($"There is no vehicle parked at this parking space.");
+            }
+
             logger.LogInformation("Unarking vehicle.");
 
-            parkingSpace.Vehicle.GUID = Guid.Empty;
+            parkingSpace.Vehicle.ParkingSpaceGuid = Guid.Empty;
             parkingSpace.Vehicle = null;
             await context.SaveChangesAsync();
 
