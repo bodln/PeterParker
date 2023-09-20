@@ -57,6 +57,8 @@ public class UserProfile : Profile
             opt => opt.MapFrom(src => src.ParkingAreas)
             );
 
+        CreateMap<Zone, ZoneDTO>();
+
         CreateMap<ParkingSpace, ParkingSpaceDTO>()
             .ForMember(dest =>
             dest.Vehicle,
