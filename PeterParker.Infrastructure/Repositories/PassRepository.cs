@@ -37,7 +37,50 @@ namespace PeterParker.Infrastructure.Repositories
         {
             logger.LogInformation("Adding pass.");
 
-            return new PassDTO();
+            User user = await GetUser(request);
+
+            List<Zone> zones = new List<Zone>();
+
+            foreach (Guid guid in passCreationDTO.ZoneGUIDs)
+            {
+                Zone zone = await context.Zones.Where(z => z.GUID == guid).FirstOrDefaultAsync();
+                if (zone == null)
+                {
+                    throw new NotFoundException($"Zone with the GUID {guid}, does not exist.");
+                }
+                zones.Add(zone);
+            }
+
+            float finalPrice = 0;
+            foreach (Zone zone in zones)
+            {
+                finalPrice += zone.HourlyRate * passCreationDTO.Hours;
+            }
+
+            if (zones.Count() > 6)
+            {
+                finalPrice = (float)(finalPrice * 0.4);
+            }
+            else
+            {
+                finalPrice = (float)(finalPrice * (1 - (0.1 * (zones.Count() - 1))));
+            }
+
+            Pass pass = new Pass
+            {
+                GUID = Guid.NewGuid(),
+                TimeOfSale = DateTime.Now,
+                Expiration = DateTime.Now.AddHours(passCreationDTO.Hours),
+                Price = finalPrice,
+                Zones = zones
+            };
+
+            context.Passes.Add(pass);
+            user.Pass = pass;
+
+            context.SaveChanges();
+
+            return mapper.Map<PassDTO>(pass);
         }
 
         private async Task<User> GetUser(HttpRequest request)
@@ -52,7 +95,7 @@ namespace PeterParker.Infrastructure.Repositories
             string email = jwtToken.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
 
             User user = await context.Users
-                .Include(u => u.Subscription)
+                .Include(u => u.Pass)
                 .Where(u => u.Email == email)
                 .FirstOrDefaultAsync();
 
