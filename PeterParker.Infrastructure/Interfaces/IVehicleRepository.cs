@@ -16,6 +16,6 @@ namespace PeterParker.Infrastructure.Interfaces
         Task DeleteVehicle(VehicleDTO request);
         Task<List<VehicleDTO>> GetAllVehiclesForUserByEmail(HttpRequest request);
         Task ParkVehicle(ParkVehicleDTO parkVehicleDTO);
-        Task UnparkVehicle(Guid parkingSpaceGuid);
+        Task UnparkVehicle(ParkVehicleDTO parkVehicleDTO);
     }
 }
