@@ -13,4 +13,5 @@ public class Pass
     public DateTime TimeOfSale { get; set; }
     public List<Zone> Zones { get; set; } = new List<Zone>(); 
     public DateTime Expiration { get; set; }
+    public float Price { get; set; }
 }

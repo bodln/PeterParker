@@ -214,7 +214,7 @@ namespace PeterParker.Infrastructure.Repositories
                     return;
                 }
             }
-                throw new AreaClosedException($"This parking area is currently close, and will remain so until {workingHoursArray[0]}:00");
+                throw new AreaClosedException($"This parking area is currently closed, and will remain so until {workingHoursArray[0]}:00");
         }
 
         private async Task ParkVehicleFunction(ParkVehicleDTO parkVehicleDTO, ParkingSpace parkingSpace, Zone zone)
@@ -256,7 +256,8 @@ namespace PeterParker.Infrastructure.Repositories
 
             if (vehicle.User.Pass != null &&
                 vehicle.User.Pass.Expiration < DateTime.Now &&
-                zone == null)
+                zone == null &&
+                vehicle.User.Subscription == null)
             {
                 throw new NoParkingPermitException("Your pass is not valid for this zone.");
             }

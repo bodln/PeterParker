@@ -11,8 +11,9 @@ namespace PeterParker.Infrastructure.Interfaces
 {
     public interface ISubscriptionRepository 
     {
-        Task Add(HttpRequest request);
+        Task Add(HttpRequest request, SubscriptionDTO subscriptionDTO);
         Task Delete(SubscriptionDTO subscriptionDTO);
         Task<SubscriptionDTO> Get(HttpRequest request);
+        object Prices();
     }
 }

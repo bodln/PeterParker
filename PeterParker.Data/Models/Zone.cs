@@ -12,5 +12,6 @@ public class Zone
     public string Name { get; set; } = string.Empty;
     public Guid GUID { get; set; }
     public string GeoJSON { get; set; } = string.Empty;
+    public float HourlyRate { get; set; }
     public List<ParkingArea> ParkingAreas { get; set; } = new List<ParkingArea>();
 }

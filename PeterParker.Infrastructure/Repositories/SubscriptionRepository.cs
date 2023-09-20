@@ -17,6 +17,9 @@ namespace PeterParker.Infrastructure.Repositories
         private readonly DataContext context;
         private readonly IMapper mapper;
         private readonly ILogger<Subscription> logger;
+        private float weeklyPrice = 10;
+        private float mounthlyPrice = 30;
+        private float annualPrice = 250;
 
         public SubscriptionRepository(DataContext context,
             IMapper mapper,
@@ -27,7 +30,17 @@ namespace PeterParker.Infrastructure.Repositories
             this.logger = logger;
         }
 
-        public async Task Add(HttpRequest request)
+        public object Prices()
+        {
+            return new
+            {
+                weekly = weeklyPrice,
+                mounthlyPrice = mounthlyPrice,
+                annualPrice = annualPrice
+            };
+        }
+
+        public async Task Add(HttpRequest request, SubscriptionDTO subscriptionDTO)
         {
             User user = await GetUser(request);
 
@@ -35,13 +48,30 @@ namespace PeterParker.Infrastructure.Repositories
 
             Subscription subscription = new Subscription
             {
-                GUID = Guid.NewGuid(),
-                Expiration = DateTime.Now.AddMonths(1)
+                GUID = Guid.NewGuid()
             };
 
-            user.Subscription = subscription;
+            switch (subscriptionDTO.Type)
+            {
+                case "weekly":
+                    subscription.Expiration = DateTime.Now.AddDays(7);
+                    subscription.Price = weeklyPrice;
+                    break;
+                case "mounthly":
+                    subscription.Expiration = DateTime.Now.AddMonths(1);
+                    subscription.Price = mounthlyPrice;
+                    break;
+                case "annually":
+                    subscription.Expiration = DateTime.Now.AddYears(1);
+                    subscription.Price = annualPrice;
+                    break;
+                default:
+                    throw new NotFoundException($"No subscription of type {subscriptionDTO.Type}.");
+            }
+
 
             context.Subscriptions.Add(subscription);
+            user.Subscription = subscription;
             context.SaveChanges();
 
             logger.LogInformation("Success.");
@@ -82,8 +112,6 @@ namespace PeterParker.Infrastructure.Repositories
 
         private async Task<User> GetUser(HttpRequest request)
         {
-            logger.LogInformation("Deleting subscription.");
-
             string token = request.Headers["Authorization"].ToString().Replace("bearer ", "");
 
             JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();

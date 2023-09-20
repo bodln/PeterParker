@@ -10,6 +10,7 @@ namespace PeterParker.Data.DTOs
     {
         public Guid GUID { get; set; }
         public string Name { get; set; } = string.Empty;
+        public float HourlyRate { get; set; }
         public string GeoJSON { get; set; } = string.Empty;
     }
 }

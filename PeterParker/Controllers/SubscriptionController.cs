@@ -23,11 +23,18 @@ namespace PeterParker.Controllers
             return Ok(result);
         }
 
-        [HttpPost("Add")]
-        public async Task<IActionResult> Add(HttpRequest request)
+        [HttpPost("Subscribe")]
+        public async Task<IActionResult> Subscribe(SubscriptionDTO subscription)
         {
-            await unitOfWork.SubscriptionRepository.Add(request);
-            return Ok("Sunscription added.");
+            await unitOfWork.SubscriptionRepository.Add(HttpContext.Request, subscription);
+            return Ok("Subscription added.");
+        }
+
+        [HttpGet("GetPrices")]
+        public object GetPrices()
+        {
+            object prices = unitOfWork.SubscriptionRepository.Prices();
+            return prices;
         }
 
         [HttpDelete("Delete")]
