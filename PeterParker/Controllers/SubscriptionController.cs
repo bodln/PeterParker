@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PeterParker.Data.DTOs;
 using PeterParker.Infrastructure;
@@ -24,6 +25,7 @@ namespace PeterParker.Controllers
         }
 
         [HttpPost("Subscribe")]
+        [Authorize]
         public async Task<IActionResult> Subscribe(SubscriptionDTO subscription)
         {
             await unitOfWork.SubscriptionRepository.Add(HttpContext.Request, subscription);
@@ -37,10 +39,11 @@ namespace PeterParker.Controllers
             return prices;
         }
 
-        [HttpDelete("Delete")]
-        public async Task<IActionResult> Delete(SubscriptionDTO request)
+        [HttpPost("Unsubscribe")]
+        [Authorize]
+        public async Task<IActionResult> Delete()
         {
-            await unitOfWork.SubscriptionRepository.Delete(request);
+            await unitOfWork.SubscriptionRepository.Delete(HttpContext.Request);
             return Ok("Subscription deleted.");
         }
     }

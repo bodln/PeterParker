@@ -91,20 +91,19 @@ namespace PeterParker.Infrastructure.Repositories
             return subscriptionDTO;
         }
 
-        public async Task Delete(SubscriptionDTO subscriptionDTO)
+        public async Task Delete(HttpRequest request)
         {
-            logger.LogInformation("Deleting subscription.");
+            logger.LogInformation("Unsubscribing.");
 
-            Subscription subscription = await context.Subscriptions
-                .Where(s => s.GUID == subscriptionDTO.GUID)
-                .FirstOrDefaultAsync();
+            User user = await GetUser(request);
 
-            if (subscription == null)
+            if (user.Subscription == null)
             {
                 throw new NotFoundException("Subscription not found.");
             }
 
-            context.Subscriptions.Remove(subscription);
+            context.Subscriptions.Remove(user.Subscription);
+            user.Subscription = null;
             context.SaveChanges();
 
             logger.LogInformation("Success.");
