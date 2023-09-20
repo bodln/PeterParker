@@ -57,7 +57,7 @@ namespace PeterParker.Infrastructure.Repositories
                     subscription.Expiration = DateTime.Now.AddDays(7);
                     subscription.Price = weeklyPrice;
                     break;
-                case "mounthly":
+                case "monthly":
                     subscription.Expiration = DateTime.Now.AddMonths(1);
                     subscription.Price = mounthlyPrice;
                     break;

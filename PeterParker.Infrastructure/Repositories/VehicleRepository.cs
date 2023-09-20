@@ -241,14 +241,14 @@ namespace PeterParker.Infrastructure.Repositories
             }
 
             if (vehicle.User.Subscription != null && 
-                vehicle.User.Subscription.Expiration > DateTime.Now &&
+                vehicle.User.Subscription.Expiration < DateTime.Now &&
                 vehicle.User.Pass == null)
             {
                 throw new NoParkingPermitException("Your subscription has expired.");
             }
 
             if (vehicle.User.Pass != null &&
-                vehicle.User.Pass.Expiration > DateTime.Now &&
+                vehicle.User.Pass.Expiration < DateTime.Now &&
                 vehicle.User.Subscription == null)
             {
                 throw new NoParkingPermitException("Your pass has expired.");
@@ -262,8 +262,10 @@ namespace PeterParker.Infrastructure.Repositories
                 throw new NoParkingPermitException("Your pass is not valid for this zone.");
             }
 
-            if (vehicle.User.Pass.Expiration > DateTime.Now &&
-                vehicle.User.Subscription.Expiration > DateTime.Now)
+            if (vehicle.User.Pass != null &&
+                vehicle.User.Pass.Expiration < DateTime.Now &&
+                vehicle.User.Subscription != null &&
+                vehicle.User.Subscription.Expiration < DateTime.Now)
             {
                 throw new NoParkingPermitException("Both your pass and subscription have expired.");
             }
