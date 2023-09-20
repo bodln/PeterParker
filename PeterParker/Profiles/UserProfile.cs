@@ -74,5 +74,11 @@ public class UserProfile : Profile
             dest.ParkingSpaces,
             opt => opt.MapFrom(src => src.ParkingSpaces)
             );
+
+        CreateMap<Pass, PassDTO>()
+            .ForMember(dest =>
+            dest.Zones,
+            opt => opt.MapFrom(src => src.Zones)
+            );
     }
 }
