@@ -73,7 +73,7 @@ namespace PeterParker.Infrastructure.Repositories
 
             ticket.GUID = Guid.NewGuid();
             ticket.Issued = DateTime.Now;
-            ticket.Registration = parkingSpace.Vehicle.Registration;
+            ticket.Registration = vehicle.Registration;
 
             user.Tickets.Add(ticket);
 

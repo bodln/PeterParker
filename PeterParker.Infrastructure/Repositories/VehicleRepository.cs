@@ -299,7 +299,7 @@ namespace PeterParker.Infrastructure.Repositories
 
         // I'm thinking that on the frontend the user knows where his vehicle is parked
         // so when unparking just send that info with no need of sending the registration
-        public async Task UnparkVehicle(ParkVehicleDTO parkVehicleDTO)
+        public async Task UnparkVehicle(HttpRequest request, ParkVehicleDTO parkVehicleDTO)
         {
             logger.LogInformation("Getting parking space.");
 
@@ -314,6 +314,20 @@ namespace PeterParker.Infrastructure.Repositories
             if (parkingSpace.Vehicle == null)
             {
                 throw new NotFoundException($"There is no vehicle parked at this parking space.");
+            }
+
+            string token = request.Headers["Authorization"].ToString().Replace("bearer ", "");
+
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            JwtSecurityToken jwtToken = handler.ReadToken(token) as JwtSecurityToken;
+
+            string email = jwtToken.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
+
+            User user = await context.Users.Where(u => u.Email == email).FirstOrDefaultAsync();
+
+            if (parkingSpace.Vehicle.User != user)
+            {
+                throw new BadUserDataException("You cannot unpark a vehicle you do not own.");
             }
 
             logger.LogInformation("Unarking vehicle.");

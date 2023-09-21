@@ -44,9 +44,9 @@ namespace PeterParker.Controllers
         }
 
         [HttpPost("UnparkVehicle")]
-        public async Task<IActionResult> UnparkVehicle(ParkVehicleDTO request)
+        public async Task<IActionResult> UnparkVehicle(ParkVehicleDTO vehicleDTO)
         {
-            await unitOfWork.VehicleRepository.UnparkVehicle(request);
+            await unitOfWork.VehicleRepository.UnparkVehicle(HttpContext.Request, vehicleDTO);
             return Ok("Successfully unparked!");
         }
     }
