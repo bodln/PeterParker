@@ -97,11 +97,13 @@ namespace PeterParker.Infrastructure.Repositories
                 throw new NotFoundException("Ticket not found.");
             }
 
-            User user = (await context.Vehicles
-                .Where(v => v.Registration == ticketDTO.Registration)
+            Vehicle vehicle = await context.Vehicles
+                .Where(v => v.Registration == ticket.Registration)
                 .Include(v => v.User)
                     .ThenInclude(u => u.Tickets)
-                .FirstOrDefaultAsync()).User;
+                .FirstOrDefaultAsync();
+
+            User user = vehicle.User;
 
             if (user == null)
             {
