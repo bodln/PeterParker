@@ -24,10 +24,14 @@ namespace PeterParker.Infrastructure.Repositories
             this.logger = logger;
         }
 
-        public async void Add(TicketDTO request)
+        public async Task Add(TicketDTO request)
         {
+            if (request.ParkingSpaceGuid == null || request.ZoneGuid == null)
+            {
+                throw new MissingParametersException("Missing parameters for ticket creation.");
+            }
             ParkingSpace parkingSpace = await context.ParkingSpaces
-                .Where(ps => ps.GUID == request.GUID)
+                .Where(ps => ps.GUID == request.ParkingSpaceGuid)
                 .Include(ps => ps.Vehicle)
                     .ThenInclude(v => v.User)
                         .ThenInclude(u => u.Tickets)
@@ -38,14 +42,19 @@ namespace PeterParker.Infrastructure.Repositories
                 throw new NotFoundException("Parking space not found.");
             }
 
+            if (parkingSpace.Vehicle == null)
+            {
+                throw new NotFoundException("There is no car parked here.");
+            }
+
             Ticket alreadyExisting = await context.Tickets
-                .Where(t => t.Registration == parkingSpace.Vehicle.Registration)
-                .Where(t => t.ZoneGuid == request.ZoneGuid)
-                .Where(t => t.Issued.AddHours(24) > DateTime.Now)
+                .Where(t => t.Registration == parkingSpace.Vehicle.Registration &&
+                t.ZoneGuid == request.ZoneGuid &&
+                t.Issued.AddHours(24) > DateTime.Now)
                 .FirstOrDefaultAsync();
 
             Vehicle vehicle = parkingSpace.Vehicle;
-            Zone zone = await context.Zones.Where(z => z.GUID == request.GUID).FirstOrDefaultAsync();
+            Zone zone = await context.Zones.Where(z => z.GUID == request.ZoneGuid).FirstOrDefaultAsync();
 
             if (zone == null)
             {
@@ -59,12 +68,10 @@ namespace PeterParker.Infrastructure.Repositories
 
             User user = vehicle.User;
 
-            if (request.ParkingSpaceGuid == null || request.ZoneGuid == null)
-            {
-                throw new MissingParametersException("Missing parameters for ticket creation.");
-            }
-            Ticket ticket = mapper.Map<Ticket>(request);
+            Ticket ticket = new Ticket(); 
+            ticket = mapper.Map<Ticket>(request);
 
+            ticket.GUID = Guid.NewGuid();
             ticket.Issued = DateTime.Now;
             ticket.Registration = parkingSpace.Vehicle.Registration;
 
@@ -81,8 +88,32 @@ namespace PeterParker.Infrastructure.Repositories
 
         public async Task Settle(TicketDTO ticketDTO)
         {
-            //Ticket ticket = await context.Tickets
-            //    .Where(t => t.GUID = ticketDTO.GUID);
+            Ticket ticket = await context.Tickets
+                .Where(t => t.GUID == ticketDTO.GUID)
+                .FirstOrDefaultAsync();
+
+            if (ticket == null)
+            {
+                throw new NotFoundException("Ticket not found.");
+            }
+
+            User user = (await context.Vehicles
+                .Where(v => v.Registration == ticketDTO.Registration)
+                .Include(v => v.User)
+                    .ThenInclude(u => u.Tickets)
+                .FirstOrDefaultAsync()).User;
+
+            if (user == null)
+            {
+                throw new NotFoundException($"No vehicle with registration: {ticketDTO.Registration} found.");
+            }
+
+            ticket.Paid = true;
+            ticket.Settled = DateTime.Now;
+            ticket.SettleReason = ticketDTO.SettleReason;
+            user.Tickets.Remove(ticket);
+
+            context.SaveChanges();
         }   
     }
 }

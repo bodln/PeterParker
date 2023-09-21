@@ -16,7 +16,8 @@ namespace PeterParker.Data.DTOs
         public DateTime Settled { get; set; }
         public string Registration { get; set; }
         public int Fine { get; set; } // in RSD
-        public string Reason { get; set; }
-    
+        public string IssueReason { get; set; } = string.Empty;
+        public string SettleReason { get; set; } = string.Empty;
+
     }
 }

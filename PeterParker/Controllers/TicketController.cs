@@ -23,10 +23,17 @@ namespace PeterParker.Controllers
         }
 
         [HttpPost("AddTicket")]
-        public IActionResult Add(TicketDTO request)
+        public async Task<IActionResult> Add(TicketDTO request)
         {
-            unitOfWork.TicketRepository.Add(request);
+            await unitOfWork.TicketRepository.Add(request);
             return Ok("Ticket added");
+        }
+
+        [HttpPost("Settle")]
+        public async Task<IActionResult> Settle(TicketDTO request)
+        {
+            await unitOfWork.TicketRepository.Settle(request);
+            return Ok("Ticket settled.");
         }
     }
 }
