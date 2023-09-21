@@ -14,7 +14,7 @@ namespace PeterParker.Data.DTOs
         public Guid ParkingSpaceGuid { get; set; }
         public DateTime Issued { get; set; }
         public DateTime Settled { get; set; }
-        public string Registration { get; set; }
+        public string Registration { get; set; } = string.Empty;
         public int Fine { get; set; } // in RSD
         public string IssueReason { get; set; } = string.Empty;
         public string SettleReason { get; set; } = string.Empty;
