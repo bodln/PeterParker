@@ -32,7 +32,7 @@ public class UserProfile : Profile
         CreateMap<VehicleDTO, Vehicle>()
             .ForMember(dest =>
                 dest.User,
-                opt => opt.Ignore() // <-- Doesn't work
+                opt => opt.Ignore() 
                 );
 
         CreateMap<Vehicle, VehicleDTO>()
@@ -41,7 +41,15 @@ public class UserProfile : Profile
                 opt => opt.MapFrom(src => src.User.Email)
                 );
 
-        CreateMap<TicketDTO, Ticket>();
+        CreateMap<TicketDTO, Ticket>()
+            .ForMember(dest =>
+                dest.Issued,
+                opt => opt.Ignore() 
+                )
+            .ForMember(dest =>
+                dest.Settled,
+                opt => opt.Ignore()
+                ); 
 
         CreateMap<Ticket, TicketDTO>();
 

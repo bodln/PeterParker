@@ -9,10 +9,14 @@ namespace PeterParker.Data.DTOs
     public class TicketDTO
     {
         public Guid GUID { get; set; }
-        public bool Paid { get; set; }
+        public bool Paid { get; set; } = false;
         public Guid ZoneGuid { get; set; }
-        public Guid ParkingSpaceGuid{ get; set; }
+        public Guid ParkingSpaceGuid { get; set; }
+        public DateTime Issued { get; set; }
+        public DateTime Settled { get; set; }
+        public string Registration { get; set; }
+        public int Fine { get; set; } // in RSD
         public string Reason { get; set; }
-        public int Fine { get; set; }
+    
     }
 }

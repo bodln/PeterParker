@@ -9,9 +9,9 @@ namespace PeterParker.Data.DTOs
 {
     public class VehicleDTO
     {
+        public Guid GUID { get; set; }
         public string Registration { get; set; } = string.Empty;
         public string UserEmail { get; set; } = string.Empty;
         public Guid ParkingSpaceGuid { get; set; } = Guid.Empty;
-        public Guid GUID { get; set; }
     }
 }

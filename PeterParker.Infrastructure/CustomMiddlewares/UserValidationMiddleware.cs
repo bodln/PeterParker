@@ -26,16 +26,33 @@ public class UserValidationMiddleware
             context.Request.Path.StartsWithSegments("/api/User/Update"))) // Update the path as needed
         {
             // Read the request body
-            string requestBody;
-            using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8))
+            try
             {
-                requestBody = await reader.ReadToEndAsync();
+                string requestBody;
+                using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8))
+                {
+                    requestBody = await reader.ReadToEndAsync();
+                }
+
+                var user = JsonConvert.DeserializeObject<UserRegisterDTO>(requestBody);
+
+                IsValidUser(user);
             }
-
-            // Deserialize the JSON request body to a User object
-            var user = JsonConvert.DeserializeObject<UserRegisterDTO>(requestBody);
-
-            IsValidUser(user);
+            catch (JsonReaderException ex)
+            {
+                // Handle JSON parsing errors
+                context.Response.StatusCode = 400;
+                context.Response.ContentType = "application/json";
+                var errorResponse = new
+                {
+                    type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+                    title = "Invalid JSON",
+                    detail = "The request body does not contain valid JSON.",
+                };
+                var jsonResponse = JsonConvert.SerializeObject(errorResponse);
+                await context.Response.WriteAsync(jsonResponse);
+                return; // End the middleware pipeline
+            }
         }
 
         await _next(context);
